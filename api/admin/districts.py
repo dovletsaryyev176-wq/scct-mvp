@@ -57,6 +57,7 @@ def block_district(d_id):
     try:
         with conn.cursor() as cursor:
             cursor.execute("UPDATE districts SET is_active=0 WHERE id=%s", (d_id,))
+            conn.commit()
             cursor.execute("SELECT id, name, city_id, is_active FROM districts WHERE id=%s", (d_id,))
             district = cursor.fetchone()
         if not district:
@@ -73,6 +74,7 @@ def unblock_district(d_id):
     try:
         with conn.cursor() as cursor:
             cursor.execute("UPDATE districts SET is_active=1 WHERE id=%s", (d_id,))
+            conn.commit()
             cursor.execute("SELECT id, name, city_id, is_active FROM districts WHERE id=%s", (d_id,))
             district = cursor.fetchone()
         if not district:

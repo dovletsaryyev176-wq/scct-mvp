@@ -47,6 +47,7 @@ def block_city(city_id):
     try:
         with conn.cursor() as cursor:
             cursor.execute("UPDATE cities SET is_active=0 WHERE id=%s", (city_id,))
+            conn.commit()
             cursor.execute("SELECT id, name, is_active FROM cities WHERE id=%s", (city_id,))
             city = cursor.fetchone()
         if not city:
@@ -63,6 +64,7 @@ def unblock_city(city_id):
     try:
         with conn.cursor() as cursor:
             cursor.execute("UPDATE cities SET is_active=1 WHERE id=%s", (city_id,))
+            conn.commit()
             cursor.execute("SELECT id, name, is_active FROM cities WHERE id=%s", (city_id,))
             city = cursor.fetchone()
         if not city:
