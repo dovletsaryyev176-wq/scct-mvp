@@ -3,6 +3,7 @@ admin_bp = Blueprint('admin_api', __name__)
 from . import all_types
 from . import brands
 from . import cities
+from . import clients
 from . import counterparties
 from . import courier_info
 from . import districts
