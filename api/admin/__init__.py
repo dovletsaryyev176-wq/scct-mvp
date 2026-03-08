@@ -6,11 +6,13 @@ from . import cities
 from . import clients
 from . import counterparties
 from . import courier_info
+from . import credits
 from . import districts
 from . import price_types
 from . import product_states
 from . import product_types
 from . import products
+from . import services
 from . import transports
 from . import users
 from . import warehouses
