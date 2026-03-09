@@ -75,19 +75,19 @@ def create_order():
                 if not cursor.fetchone():
                     return jsonify({'error': 'Профиль курьера не найден'}), 404
 
-            # 2. Создание заголовка заказа
+            # 2. Создание заголовка заказа (создаем пустой total_amount=0, потом обновим)
             sql_order = """
                 INSERT INTO orders (client_id, client_address_id, client_phone_id, courier_id, 
                                   user_id, note, delivery_date, delivery_time_type, 
-                                  delivery_time, payment_type, status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                  delivery_time, payment_type, cash_amount, card_amount, status, total_amount)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             user_id = session.get('user_id', 1)  # Дефолт 1 
             order_params = (
                 data['client_id'], data['client_address_id'], data['client_phone_id'], 
                 data.get('courier_id'), user_id, data.get('note'), 
                 delivery_date, data['delivery_time_type'], delivery_time, 
-                data['payment_type'], OrderStatuses.PENDING
+                data['payment_type'], data.get('cash_amount'), data.get('card_amount'), OrderStatuses.PENDING, 0.00
             )
             cursor.execute(sql_order, order_params)
             order_id = cursor.lastrowid
@@ -120,7 +120,7 @@ def create_order():
                 if price_row and price_row['price'] is not None:
                     price = Decimal(str(price_row['price']))
                     total_item_price = price * quantity
-                    total_order_price += total_item_price
+                    total_order_price = total_order_price + total_item_price
                     
                 items_for_insert.append((order_id, service_id, quantity, price, total_item_price))
                 order_items_calculated.append({
@@ -190,7 +190,7 @@ def create_order():
                         for item in order_items_calculated:
                             if item['service_id'] in d_services:
                                 has_service = True
-                                eligible_amount += item['total_price']
+                                eligible_amount = eligible_amount + Decimal(str(item['total_price']))
                         if not has_service:
                             continue
                     else:
@@ -266,6 +266,9 @@ def create_order():
             if final_order_price < 0:
                 final_order_price = Decimal('0.0')
 
+            # Обновляем total_amount в заказах
+            cursor.execute("UPDATE orders SET total_amount = %s WHERE id = %s", (final_order_price, order_id))
+
             # 5. Обработка кредита
             if data['payment_type'] == PaymentTypes.CREDIT and final_order_price > 0:
                 cursor.execute("SELECT id, credit_limit, used_credit FROM client_credits WHERE client_id = %s FOR UPDATE", 
@@ -308,7 +311,7 @@ def create_order():
             cursor.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
             new_order = cursor.fetchone()
             
-            # Форматирование дат для JSON
+            # Форматирование дат и полей для JSON
             if new_order.get('delivery_date'): new_order['delivery_date'] = new_order['delivery_date'].isoformat()
             if new_order.get('created_at'): new_order['created_at'] = new_order['created_at'].isoformat()
             if new_order.get('delivery_time') and hasattr(new_order['delivery_time'], 'seconds'):
@@ -318,7 +321,10 @@ def create_order():
                 
             new_order['total_order_price'] = float(total_order_price)
             new_order['total_discount_amount'] = float(total_discount_amount)
-            new_order['final_order_price'] = float(final_order_price)
+            new_order['total_amount'] = float(final_order_price)
+            
+            if new_order.get('cash_amount') is not None: new_order['cash_amount'] = float(new_order['cash_amount'])
+            if new_order.get('card_amount') is not None: new_order['card_amount'] = float(new_order['card_amount'])
             
             # Добавим для полноты ответа скидки и услуги
             cursor.execute("SELECT * FROM order_items WHERE order_id = %s", (order_id,))
@@ -336,5 +342,526 @@ def create_order():
     except Exception as e:
         conn.rollback()
         return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+# -------------------------------------------------------------
+# Мониторинг заказов
+# -------------------------------------------------------------
+@operator_bp.route('/monitoring', methods=['GET'])
+@roles_required('admin', 'operator', 'courier', 'warehouse')
+def monitoring_orders():
+    lang = request.args.get('lang', 'ru')
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    offset = (page - 1) * per_page
+    
+    delivery_date = request.args.get('delivery_date', type=str)
+    phone = request.args.get('phone', type=str)
+    
+    conditions = []
+    params = []
+    
+    if delivery_date:
+        try:
+            delivery_date_obj = datetime.strptime(delivery_date, '%Y-%m-%d').date()
+            conditions.append("o.delivery_date = %s")
+            params.append(delivery_date_obj)
+        except ValueError:
+            return jsonify({'error': 'Неправильный формат даты. Используйте YYYY-MM-DD'}), 400
+            
+    if phone:
+        conditions.append("cp.phone LIKE %s")
+        params.append(f"%{phone}%")
+        
+    where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+    
+    conn = Db.get_connection()
+    try:
+        with conn.cursor() as cursor:
+            # Подсчет количества
+            count_sql = f"""
+                SELECT COUNT(DISTINCT o.id) as total 
+                FROM orders o
+                LEFT JOIN client_phones cp ON o.client_phone_id = cp.id
+                {where_clause}
+            """
+            cursor.execute(count_sql, tuple(params))
+            total = cursor.fetchone()['total']
+            
+            # Получение списка заказов
+            sql = f"""
+                SELECT 
+                    o.id,
+                    o.client_id,
+                    c.full_name as client_name,
+                    cp.phone as client_phone,
+                    ca.address_line as client_address,
+                    city.name as city_name,
+                    o.delivery_time_type,
+                    o.delivery_time,
+                    o.payment_type,
+                    o.status,
+                    o.total_amount,
+                    o.cash_amount,
+                    o.card_amount,
+                    u.full_name as operator_name,
+                    cour_u.full_name as courier_name
+                FROM orders o
+                LEFT JOIN clients c ON o.client_id = c.id
+                LEFT JOIN client_phones cp ON o.client_phone_id = cp.id
+                LEFT JOIN client_addresses ca ON o.client_address_id = ca.id
+                LEFT JOIN cities city ON ca.city_id = city.id
+                LEFT JOIN users u ON o.user_id = u.id
+                LEFT JOIN courier_profiles cprof ON o.courier_id = cprof.user_id
+                LEFT JOIN users cour_u ON cprof.user_id = cour_u.id
+                {where_clause}
+                ORDER BY o.created_at DESC
+                LIMIT %s OFFSET %s
+            """
+            query_params = params + [per_page, offset]
+            cursor.execute(sql, tuple(query_params))
+            orders = cursor.fetchall()
+            
+            if not orders:
+                return jsonify({
+                    'orders': [],
+                    'total': 0,
+                    'pages': 0,
+                    'current_page': page,
+                }), 200
+
+            order_ids = [order['id'] for order in orders]
+            placeholders = ', '.join(['%s'] * len(order_ids))
+
+            # Получение услуг по заказам
+            items_sql = f"""
+                SELECT oi.order_id, oi.service_id, s.name as service_name, oi.quantity, oi.price, oi.total_price
+                FROM order_items oi
+                JOIN services s ON oi.service_id = s.id
+                WHERE oi.order_id IN ({placeholders})
+            """
+            cursor.execute(items_sql, tuple(order_ids))
+            items = cursor.fetchall()
+
+            # Получение скидок по заказам
+            discounts_sql = f"""
+                SELECT od.order_id, d.name as discount_name, d.discount_type, od.discount_amount
+                FROM order_discounts od
+                JOIN discounts d ON od.discount_id = d.id
+                WHERE od.order_id IN ({placeholders})
+            """
+            cursor.execute(discounts_sql, tuple(order_ids))
+            discounts = cursor.fetchall()
+            
+            # Группировка
+            items_by_order = {}
+            for item in items:
+                o_id = item['order_id']
+                if o_id not in items_by_order:
+                    items_by_order[o_id] = []
+                items_by_order[o_id].append(item)
+                
+            discounts_by_order = {}
+            for d in discounts:
+                o_id = d['order_id']
+                if o_id not in discounts_by_order:
+                    discounts_by_order[o_id] = []
+                discounts_by_order[o_id].append(d)
+
+            # Форматирование ответа
+            for order in orders:
+                if order.get('delivery_time') and hasattr(order['delivery_time'], 'seconds'):
+                    hours, remainder = divmod(order['delivery_time'].seconds, 3600)
+                    minutes, seconds = divmod(remainder, 60)
+                    order['delivery_time'] = f"{hours:02}:{minutes:02}:{seconds:02}"
+                    
+                # Локализация типов
+                time_type = order.get('delivery_time_type')
+                time_type_lang = DeliveryTimes.LABELS.get(time_type, {}) if time_type else {}
+                order['delivery_time_type_label'] = time_type_lang.get(lang) or time_type_lang.get('ru')
+                
+                pay_type = order.get('payment_type')
+                payment_type_lang = PaymentTypes.LABELS.get(pay_type, {}) if pay_type else {}
+                order['payment_type_label'] = payment_type_lang.get(lang) or payment_type_lang.get('ru')
+                
+                status_val = order.get('status')
+                status_lang = OrderStatuses.LABELS.get(status_val, {}) if status_val else {}
+                order['status_label'] = status_lang.get(lang) or status_lang.get('ru')
+
+                order_items = items_by_order.get(order['id'], [])
+                order_discounts = discounts_by_order.get(order['id'], [])
+                
+                # Теперь мы не вычисляем сумму заново, а отдаем ту, что сохранилась на момент создания (чтобы цены не "поплыли").
+                # Суммы отдельно по услугам и скидкам остаются историческими, так как они копируются построчно в order_items и order_discounts
+                order['services'] = order_items
+                order['discounts'] = order_discounts
+                
+                # Превращаем Decimal в float для JSON
+                order['total_amount'] = float(order['total_amount'])
+                if order.get('cash_amount') is not None: order['cash_amount'] = float(order['cash_amount'])
+                if order.get('card_amount') is not None: order['card_amount'] = float(order['card_amount'])
+                
+        pages = (total + per_page - 1) // per_page if total > 0 else 1
+            
+        return jsonify({
+            'orders': orders,
+            'total': total,
+            'pages': pages,
+            'current_page': page,
+        }), 200
+        
+    finally:
+        conn.close()
+
+# -------------------------------------------------------------
+# История заказов конкретного клиента
+# -------------------------------------------------------------
+@operator_bp.route('/clients/<int:client_id>/orders', methods=['GET'])
+@roles_required('admin', 'operator', 'courier', 'warehouse')
+def client_order_history(client_id):
+    lang = request.args.get('lang', 'ru')
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+    offset = (page - 1) * per_page
+    
+    conn = Db.get_connection()
+    try:
+        with conn.cursor() as cursor:
+            # Проверка, существует ли клиент
+            cursor.execute("SELECT full_name FROM clients WHERE id = %s", (client_id,))
+            client = cursor.fetchone()
+            if not client:
+                return jsonify({'error': 'Клиент не найден'}), 404
+                
+            # Подсчет количества заказов клиента
+            count_sql = "SELECT COUNT(id) as total FROM orders WHERE client_id = %s"
+            cursor.execute(count_sql, (client_id,))
+            total = cursor.fetchone()['total']
+            
+            # Получение списка заказов клиента
+            sql = """
+                SELECT 
+                    o.id,
+                    o.created_at,
+                    o.delivery_date,
+                    cp.phone as client_phone,
+                    ca.address_line as client_address,
+                    o.payment_type,
+                    o.total_amount,
+                    o.cash_amount,
+                    o.card_amount,
+                    o.status,
+                    o.note,
+                    u.full_name as operator_name,
+                    cour_u.full_name as courier_name
+                FROM orders o
+                LEFT JOIN client_phones cp ON o.client_phone_id = cp.id
+                LEFT JOIN client_addresses ca ON o.client_address_id = ca.id
+                LEFT JOIN users u ON o.user_id = u.id
+                LEFT JOIN courier_profiles cprof ON o.courier_id = cprof.user_id
+                LEFT JOIN users cour_u ON cprof.user_id = cour_u.id
+                WHERE o.client_id = %s
+                ORDER BY o.created_at DESC
+                LIMIT %s OFFSET %s
+            """
+            cursor.execute(sql, (client_id, per_page, offset))
+            orders = cursor.fetchall()
+            
+            if not orders:
+                return jsonify({
+                    'client_id': client_id,
+                    'client_name': client['full_name'],
+                    'orders': [],
+                    'total': 0,
+                    'pages': 0,
+                    'current_page': page
+                }), 200
+
+            order_ids = [order['id'] for order in orders]
+            placeholders = ', '.join(['%s'] * len(order_ids))
+
+            # Получение услуг по заказам
+            items_sql = f"""
+                SELECT oi.order_id, oi.service_id, s.name as service_name, oi.quantity, oi.price, oi.total_price
+                FROM order_items oi
+                JOIN services s ON oi.service_id = s.id
+                WHERE oi.order_id IN ({placeholders})
+            """
+            cursor.execute(items_sql, tuple(order_ids))
+            items = cursor.fetchall()
+
+            # Получение скидок по заказам
+            discounts_sql = f"""
+                SELECT od.order_id, d.name as discount_name, d.discount_type, od.discount_amount
+                FROM order_discounts od
+                JOIN discounts d ON od.discount_id = d.id
+                WHERE od.order_id IN ({placeholders})
+            """
+            cursor.execute(discounts_sql, tuple(order_ids))
+            discounts = cursor.fetchall()
+            
+            # Группировка
+            items_by_order = {}
+            for item in items:
+                o_id = item['order_id']
+                if o_id not in items_by_order:
+                    items_by_order[o_id] = []
+                items_by_order[o_id].append(item)
+                
+            discounts_by_order = {}
+            for d in discounts:
+                o_id = d['order_id']
+                if o_id not in discounts_by_order:
+                    discounts_by_order[o_id] = []
+                discounts_by_order[o_id].append(d)
+
+            # Форматирование ответа
+            for order in orders:
+                if order.get('delivery_date'): order['delivery_date'] = order['delivery_date'].isoformat()
+                if order.get('created_at'): order['created_at'] = order['created_at'].isoformat()
+                
+                # Локализация типов
+                pay_type = order.get('payment_type')
+                payment_type_lang = PaymentTypes.LABELS.get(pay_type, {}) if pay_type else {}
+                order['payment_type_label'] = payment_type_lang.get(lang) or payment_type_lang.get('ru')
+                
+                status_val = order.get('status')
+                status_lang = OrderStatuses.LABELS.get(status_val, {}) if status_val else {}
+                order['status_label'] = status_lang.get(lang) or status_lang.get('ru')
+
+                # Превращаем Decimal в float
+                order['total_amount'] = float(order['total_amount'])
+                if order.get('cash_amount') is not None: order['cash_amount'] = float(order['cash_amount'])
+                if order.get('card_amount') is not None: order['card_amount'] = float(order['card_amount'])
+
+                order['services'] = items_by_order.get(order['id'], [])
+                order['discounts'] = discounts_by_order.get(order['id'], [])
+                
+        pages = (total + per_page - 1) // per_page if total > 0 else 1
+            
+        return jsonify({
+            'client_id': client_id,
+            'client_name': client['full_name'],
+            'orders': orders,
+            'total': total,
+            'pages': pages,
+            'current_page': page
+        }), 200
+        
+    finally:
+        conn.close()
+
+# -------------------------------------------------------------
+# Получение информации о курьерах на определенную дату
+# -------------------------------------------------------------
+@operator_bp.route('/couriers_info', methods=['GET'])
+@roles_required('admin', 'operator')
+def get_couriers_info():
+    date_str = request.args.get('date', type=str)
+    
+    if date_str:
+        try:
+            target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({'error': 'Неправильный формат даты. Используйте YYYY-MM-DD'}), 400
+    else:
+        target_date = date.today()
+        
+    conn = Db.get_connection()
+    try:
+        with conn.cursor() as cursor:
+            # Получаем список курьеров, их данные, телефоны, транспорт и количество заказов на выбранную дату
+            sql = """
+                SELECT 
+                    cp.user_id as courier_id,
+                    u.full_name as courier_name,
+                    u.phone as courier_phone,
+                    u.is_active,
+                    t.number as transport_number,
+                    COUNT(o.id) as orders_count,
+                    GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') as cities,
+                    GROUP_CONCAT(DISTINCT d.name SEPARATOR ', ') as districts
+                FROM courier_profiles cp
+                JOIN users u ON cp.user_id = u.id
+                LEFT JOIN transports t ON cp.transport_id = t.id
+                LEFT JOIN orders o ON o.courier_id = cp.user_id AND o.delivery_date = %s
+                LEFT JOIN courier_districts cd ON cp.user_id = cd.courier_id
+                LEFT JOIN districts d ON cd.district_id = d.id
+                LEFT JOIN cities c ON d.city_id = c.id
+                WHERE u.role = 'courier'
+                GROUP BY cp.user_id
+                ORDER BY courier_name
+            """
+            cursor.execute(sql, (target_date,))
+            couriers = cursor.fetchall()
+
+            for courier in couriers:
+                courier['is_active'] = bool(courier['is_active'])
+            
+            return jsonify({
+                'date': target_date.isoformat(),
+                'couriers': couriers
+            }), 200
+            
+    finally:
+        conn.close()
+
+# -------------------------------------------------------------
+# Мониторинг заказов конкретного курьера
+# -------------------------------------------------------------
+@operator_bp.route('/specific_courier_info/<int:courier_id>', methods=['GET'])
+@roles_required('admin', 'operator', 'courier')
+def get_specific_courier_info(courier_id):
+    lang = request.args.get('lang', 'ru')
+    date_str = request.args.get('date', type=str)
+    
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+    offset = (page - 1) * per_page
+    
+    if date_str:
+        try:
+            target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({'error': 'Неправильный формат даты. Используйте YYYY-MM-DD'}), 400
+    else:
+        target_date = date.today()
+        
+    conn = Db.get_connection()
+    try:
+        with conn.cursor() as cursor:
+            # Проверка, существует ли курьер
+            cursor.execute("SELECT full_name FROM users WHERE id = %s AND role = 'courier'", (courier_id,))
+            courier = cursor.fetchone()
+            if not courier:
+                return jsonify({'error': 'Курьер не найден'}), 404
+                
+            # Подсчет количества заказов курьера
+            count_sql = "SELECT COUNT(id) as total FROM orders WHERE courier_id = %s AND delivery_date = %s"
+            cursor.execute(count_sql, (courier_id, target_date))
+            total = cursor.fetchone()['total']
+            
+            # Получение списка заказов как в мониторинге
+            sql = """
+                SELECT 
+                    o.id,
+                    o.client_id,
+                    c.full_name as client_name,
+                    cp.phone as client_phone,
+                    ca.address_line as client_address,
+                    city.name as city_name,
+                    o.delivery_time_type,
+                    o.delivery_time,
+                    o.payment_type,
+                    o.status,
+                    o.total_amount,
+                    o.cash_amount,
+                    o.card_amount,
+                    u.full_name as operator_name,
+                    cour_u.full_name as courier_name
+                FROM orders o
+                LEFT JOIN clients c ON o.client_id = c.id
+                LEFT JOIN client_phones cp ON o.client_phone_id = cp.id
+                LEFT JOIN client_addresses ca ON o.client_address_id = ca.id
+                LEFT JOIN cities city ON ca.city_id = city.id
+                LEFT JOIN users u ON o.user_id = u.id
+                LEFT JOIN courier_profiles cprof ON o.courier_id = cprof.user_id
+                LEFT JOIN users cour_u ON cprof.user_id = cour_u.id
+                WHERE o.courier_id = %s AND o.delivery_date = %s
+                ORDER BY o.created_at DESC
+                LIMIT %s OFFSET %s
+            """
+            cursor.execute(sql, (courier_id, target_date, per_page, offset))
+            orders = cursor.fetchall()
+            
+            if not orders:
+                return jsonify({
+                    'courier_id': courier_id,
+                    'courier_name': courier['full_name'],
+                    'date': target_date.isoformat(),
+                    'orders': [],
+                    'total': 0,
+                    'pages': 0,
+                    'current_page': page
+                }), 200
+
+            order_ids = [order['id'] for order in orders]
+            placeholders = ', '.join(['%s'] * len(order_ids))
+
+            # Получение услуг по заказам
+            items_sql = f"""
+                SELECT oi.order_id, oi.service_id, s.name as service_name, oi.quantity, oi.price, oi.total_price
+                FROM order_items oi
+                JOIN services s ON oi.service_id = s.id
+                WHERE oi.order_id IN ({placeholders})
+            """
+            cursor.execute(items_sql, tuple(order_ids))
+            items = cursor.fetchall()
+
+            # Получение скидок по заказам
+            discounts_sql = f"""
+                SELECT od.order_id, d.name as discount_name, d.discount_type, od.discount_amount
+                FROM order_discounts od
+                JOIN discounts d ON od.discount_id = d.id
+                WHERE od.order_id IN ({placeholders})
+            """
+            cursor.execute(discounts_sql, tuple(order_ids))
+            discounts = cursor.fetchall()
+            
+            # Группировка
+            items_by_order = {}
+            for item in items:
+                o_id = item['order_id']
+                if o_id not in items_by_order:
+                    items_by_order[o_id] = []
+                items_by_order[o_id].append(item)
+                
+            discounts_by_order = {}
+            for d in discounts:
+                o_id = d['order_id']
+                if o_id not in discounts_by_order:
+                    discounts_by_order[o_id] = []
+                discounts_by_order[o_id].append(d)
+
+            # Форматирование ответа
+            for order in orders:
+                if order.get('delivery_time') and hasattr(order['delivery_time'], 'seconds'):
+                    hours, remainder = divmod(order['delivery_time'].seconds, 3600)
+                    minutes, seconds = divmod(remainder, 60)
+                    order['delivery_time'] = f"{hours:02}:{minutes:02}:{seconds:02}"
+                    
+                # Локализация типов
+                time_type = order.get('delivery_time_type')
+                time_type_lang = DeliveryTimes.LABELS.get(time_type, {}) if time_type else {}
+                order['delivery_time_type_label'] = time_type_lang.get(lang) or time_type_lang.get('ru')
+                
+                pay_type = order.get('payment_type')
+                payment_type_lang = PaymentTypes.LABELS.get(pay_type, {}) if pay_type else {}
+                order['payment_type_label'] = payment_type_lang.get(lang) or payment_type_lang.get('ru')
+                
+                status_val = order.get('status')
+                status_lang = OrderStatuses.LABELS.get(status_val, {}) if status_val else {}
+                order['status_label'] = status_lang.get(lang) or status_lang.get('ru')
+
+                order['services'] = items_by_order.get(order['id'], [])
+                order['discounts'] = discounts_by_order.get(order['id'], [])
+                
+                order['total_amount'] = float(order['total_amount'])
+                if order.get('cash_amount') is not None: order['cash_amount'] = float(order['cash_amount'])
+                if order.get('card_amount') is not None: order['card_amount'] = float(order['card_amount'])
+                
+        pages = (total + per_page - 1) // per_page if total > 0 else 1
+            
+        return jsonify({
+            'courier_id': courier_id,
+            'courier_name': courier['full_name'],
+            'date': target_date.isoformat(),
+            'orders': orders,
+            'total': total,
+            'pages': pages,
+            'current_page': page
+        }), 200
+        
     finally:
         conn.close()

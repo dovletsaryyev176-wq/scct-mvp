@@ -334,6 +334,10 @@ CREATE TABLE orders (
     
     payment_type VARCHAR(50) NOT NULL,
     
+    total_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    cash_amount DECIMAL(12,2) NULL,
+    card_amount DECIMAL(12,2) NULL,
+    
     status VARCHAR(50) NOT NULL DEFAULT 'pending',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
