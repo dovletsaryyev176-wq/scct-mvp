@@ -10,7 +10,7 @@ VALID_DISCOUNT_TYPES = set(DiscountTypes.LABELS.keys())
 
 
 def validate_discount_data(data, is_create=False):
-    """Валидация входных данных скидки. Возвращает строку ошибки или None."""
+
     discount_type = data.get('discount_type')
 
     if is_create and not discount_type:
@@ -20,7 +20,6 @@ def validate_discount_data(data, is_create=False):
         valid = ', '.join(VALID_DISCOUNT_TYPES)
         return f"Недопустимый тип скидки '{discount_type}'. Допустимые: {valid}"
 
-    # Даты обязательны для всех типов скидок (создание)
     if is_create:
         if not data.get('start_date'): return "Поле 'start_date' обязательно"
         if not data.get('end_date'): return "Поле 'end_date' обязательно"
@@ -29,13 +28,11 @@ def validate_discount_data(data, is_create=False):
         if data.get('limit_count') is None: return "Поле 'limit_count' обязательно"
         if data.get('is_combinable') is None: return "Поле 'is_combinable' (bool) обязательно"
 
-    # Проверка что end_date >= start_date (если поля переданы)
     start = data.get('start_date')
     end = data.get('end_date')
     if start and end and end < start:
         return "'end_date' не может быть раньше 'start_date'"
 
-    # Специфичная для типа бизнес-логика (строго по ТЗ)
     if is_create or (discount_type and 'value' in data) or (discount_type and 'nth_order' in data):
         # 1. Скидка на N-й заказ бесплатно
         if discount_type == DiscountTypes.FREE_N_TH_ORDER:
@@ -69,7 +66,7 @@ def parse_time(value, fmt='%H:%M'):
 
 
 def serialize_discount(d, lang='ru'):
-    """Приведение типов для JSON и локализация"""
+
     if d.get('value'): d['value'] = float(d['value'])
     if d.get('start_date'): d['start_date'] = d['start_date'].isoformat()
     if d.get('end_date'): d['end_date'] = d['end_date'].isoformat()
@@ -89,7 +86,6 @@ def serialize_discount(d, lang='ru'):
         val = d.get(key)
         d[key] = [int(x) for x in val.split(',')] if val else []
 
-    # Добавляем читаемое название типа скидки с учетом языка
     discount_type = d.get('discount_type')
     labels = DiscountTypes.LABELS.get(discount_type, {})
     d['discount_type_label'] = labels.get(lang) or labels.get('ru')
@@ -162,7 +158,6 @@ def create_discount():
             cursor.execute(sql, params)
             discount_id = cursor.lastrowid
 
-            # Вставка связей
             if 'service_ids' in data and isinstance(data['service_ids'], list):
                 for s_id in data['service_ids']:
                     cursor.execute("INSERT INTO discount_services (discount_id, service_id) VALUES (%s, %s)", (discount_id, s_id))
@@ -217,7 +212,6 @@ def update_discount(id):
                     params.append(data['value'])
                     fields.append("nth_order = NULL")
 
-            # Обычные поля
             mapping = {
                 'name': 'name', 'discount_type': 'discount_type',
                 'limit_count': 'limit_count', 'is_combinable': 'is_combinable', 
