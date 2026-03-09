@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request, session
 from datetime import datetime, date, timedelta
 from decimal import Decimal
-from extensions import db  # Оставляем временно для совместимости (если другие части еще юзают)
 from db import Db
 from . import operator_bp
 from decorators import roles_required
