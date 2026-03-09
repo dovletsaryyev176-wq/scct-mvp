@@ -1,0 +1,2899 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: Admin
+meta:
+  id: wrk_b693e7a12bdf4a9ca8ce80edb3c25c48
+  created: 1772781303340
+  modified: 1772781303340
+  description: ""
+collection:
+  - url: http://127.0.0.1:5000/api/admin/cities
+    name: City-get all
+    meta:
+      id: req_09013166ec2b4f16ba65c1c64adb1af4
+      created: 1772687100340
+      modified: 1772715909567
+      isPrivate: false
+      description: ""
+      sortKey: -1772691549883
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/cities/1
+    name: City-update
+    meta:
+      id: req_6f8043f3574044439effd4a6535ef190
+      created: 1772687642019
+      modified: 1772687868923
+      isPrivate: false
+      description: ""
+      sortKey: -1772691550083
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"name": "Aşgabat"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/cities/1/block
+    name: City-block
+    meta:
+      id: req_1d7d0dfc14ad46d181acd56aa429ba28
+      created: 1772687673571
+      modified: 1772687761851
+      isPrivate: false
+      description: ""
+      sortKey: -1772691549933
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/cities/1/unblock
+    name: City-unblock
+    meta:
+      id: req_ced5ed0ba6be42048f50051d364ca117
+      created: 1772687710035
+      modified: 1772687759966
+      isPrivate: false
+      description: ""
+      sortKey: -1772691549983
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/cities/full-list
+    name: City-full list
+    meta:
+      id: req_9987b3a5e9ea47fab4a658c62485f765
+      created: 1772687872041
+      modified: 1772687921429
+      isPrivate: false
+      description: ""
+      sortKey: -1772691550183
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/auth/login
+    name: Login
+    meta:
+      id: req_a03b048e008b4eda9ed834afc369d797
+      created: 1772691284655
+      modified: 1772868863535
+      isPrivate: false
+      description: ""
+      sortKey: -1772691284655
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"username": "administrator",
+        	"password": "12345"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.3.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/auth/me
+    name: Me
+    meta:
+      id: req_b56ad55b1a9d402c8d1ac5b3e4d4877a
+      created: 1772691475099
+      modified: 1772691499602
+      isPrivate: false
+      description: ""
+      sortKey: -1772691475099
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.3.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/auth/logout
+    name: Logout
+    meta:
+      id: req_eff7cc1b33e04cfeb4c9ffddb6c27efe
+      created: 1772691503311
+      modified: 1772691545638
+      isPrivate: false
+      description: ""
+      sortKey: -1772691503311
+    method: POST
+    headers:
+      - name: User-Agent
+        value: insomnia/12.3.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/cities
+    name: City-add
+    meta:
+      id: req_96a312988a394cd5af93376b08f19d55
+      created: 1772691549783
+      modified: 1772687562651
+      isPrivate: false
+      description: ""
+      sortKey: -1772691549783
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"name": "Arkadag"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.3.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/users
+    name: Users-get all
+    meta:
+      id: req_9955141c2cf14d3e97f5865901f5e920
+      created: 1772698734004
+      modified: 1772861409445
+      isPrivate: false
+      description: ""
+      sortKey: -1772698734004
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/users
+    name: Users-add
+    meta:
+      id: req_b7d188bc38e94c728f184d016ca3fefa
+      created: 1772698785269
+      modified: 1772861956070
+      isPrivate: false
+      description: ""
+      sortKey: -1772698785269
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"full_name": "Saryyev Azat", 
+        	"phone": "+99377777", 
+        	"username": "azat",
+        	"password": "12345",
+        	"role": "courier"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/users/3
+    name: Users-update
+    meta:
+      id: req_c5ae38444545486ebe4bfdad8561d093
+      created: 1772699330712
+      modified: 1772700853698
+      isPrivate: false
+      description: ""
+      sortKey: -1772699330712
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"full_name": "Saryyeva Aynur", 
+        	"phone": "+9936566655", 
+        	"username": "aynur",
+        	"password": "12345",
+        	"role": "courier"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/users/3/block
+    name: Users-block
+    meta:
+      id: req_d4293b2fe29745ac9716f75e57463807
+      created: 1772700188546
+      modified: 1772700353089
+      isPrivate: false
+      description: ""
+      sortKey: -1772700188546
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/users/3/unblock
+    name: Users-unblock
+    meta:
+      id: req_f8efa015f0e54ae595e2dad00ac922c2
+      created: 1772700198621
+      modified: 1772700399915
+      isPrivate: false
+      description: ""
+      sortKey: -1772700198621
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/delivery-times
+    name: Types-delivery times
+    meta:
+      id: req_740800b361614ce9a52a0a771ef597d5
+      created: 1772700896973
+      modified: 1772700969015
+      isPrivate: false
+      description: ""
+      sortKey: -1772700896973
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/order-statuses
+    name: Types-order statuses
+    meta:
+      id: req_57f3c630cb04409cbd827ce4a92b94fb
+      created: 1772700971310
+      modified: 1772701060912
+      isPrivate: false
+      description: ""
+      sortKey: -1772700971310
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/payment-types
+    name: Types-payment types
+    meta:
+      id: req_12485e7068484440a988fb00ecf02604
+      created: 1772701014763
+      modified: 1772701119873
+      isPrivate: false
+      description: ""
+      sortKey: -1772701014763
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/service-types
+    name: Types-service types
+    meta:
+      id: req_fa81150aae8b4260bb74a60e3fbc4b1c
+      created: 1772701046832
+      modified: 1772701115971
+      isPrivate: false
+      description: ""
+      sortKey: -1772701046832
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/transaction-types
+    name: Types-transaction types
+    meta:
+      id: req_42f077b1a1b2489783f7e6e4a69d24a3
+      created: 1772701122327
+      modified: 1772701182619
+      isPrivate: false
+      description: ""
+      sortKey: -1772701122327
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/discount-types
+    name: Types-discount types
+    meta:
+      id: req_94b7e0f18096435eaa6e36a336175fef
+      created: 1772701188418
+      modified: 1772701233229
+      isPrivate: false
+      description: ""
+      sortKey: -1772701188418
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/price-types
+    name: Price types-get all
+    meta:
+      id: req_ce8ee6fc58824769935231ab31ce4320
+      created: 1772701235967
+      modified: 1772701561237
+      isPrivate: false
+      description: ""
+      sortKey: -1772701235967
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/price-types
+    name: Price types-insert
+    meta:
+      id: req_1f7fff3ca3784c6abe95dc94ae42a8fd
+      created: 1772701334401
+      modified: 1772701439579
+      isPrivate: false
+      description: ""
+      sortKey: -1772701334401
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"name": "rayat"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/price-types/1
+    name: Price types-update
+    meta:
+      id: req_3f77a2c00dc74719b3ec2edd68d3416f
+      created: 1772701459910
+      modified: 1772701572742
+      isPrivate: false
+      description: ""
+      sortKey: -1772701459910
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"name": "market"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/price-types/1/block
+    name: Price types-block
+    meta:
+      id: req_179fce62590e416e86bd013ea6d711c3
+      created: 1772701576331
+      modified: 1772701610021
+      isPrivate: false
+      description: ""
+      sortKey: -1772701576331
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/price-types/1/unblock
+    name: Price types-unblock
+    meta:
+      id: req_2b55ede9e52248629d5c6e8741fd7aa4
+      created: 1772701598880
+      modified: 1772701639099
+      isPrivate: false
+      description: ""
+      sortKey: -1772701598880
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/transports
+    name: Transport-add
+    meta:
+      id: req_2baa7d676ff84d309169f7fb1203dd36
+      created: 1772701643412
+      modified: 1772702137324
+      isPrivate: false
+      description: ""
+      sortKey: -1772701643412
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"number": "12345",
+        	"capacity": "100"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/transports
+    name: Transport-get all
+    meta:
+      id: req_2d18eca08b8a4626b1f9e4961ebda794
+      created: 1772702110547
+      modified: 1772702146222
+      isPrivate: false
+      description: ""
+      sortKey: -1772702110547
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/transports/1
+    name: Transport-update
+    meta:
+      id: req_18050b255e2147ca93a3ba7e46faf177
+      created: 1772702151765
+      modified: 1772702236661
+      isPrivate: false
+      description: ""
+      sortKey: -1772702151765
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"number": "777",
+        	"capacity": "200"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/transports/1/block
+    name: Transport-block
+    meta:
+      id: req_dcdf575b6fbe43d28e61bd8f6ba6515b
+      created: 1772702240368
+      modified: 1772702285852
+      isPrivate: false
+      description: ""
+      sortKey: -1772702240368
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/transports/1/unblock
+    name: Transport-unblock
+    meta:
+      id: req_f85bcf58f30b4995b64117b0f6292e33
+      created: 1772702264602
+      modified: 1772702293660
+      isPrivate: false
+      description: ""
+      sortKey: -1772702264602
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/brands
+    name: Brand-add
+    meta:
+      id: req_53f080c8a44e436aa9185909c01f8280
+      created: 1772702296863
+      modified: 1772715644138
+      isPrivate: false
+      description: ""
+      sortKey: -1772702296863
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"name":"Sarwan"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/brands
+    name: Brand-get all
+    meta:
+      id: req_f792107ab90644f9a00db8779f9ecd7d
+      created: 1772715628060
+      modified: 1772715651359
+      isPrivate: false
+      description: ""
+      sortKey: -1772715628060
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/brands/1/block
+    name: Brand-block
+    meta:
+      id: req_3466b018f6724470af1a83807815f09b
+      created: 1772715657793
+      modified: 1772715716100
+      isPrivate: false
+      description: ""
+      sortKey: -1772715657793
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/brands/1/unblock
+    name: Brand-unblock
+    meta:
+      id: req_d8cd6452a8b3499d85d06cf3b885029c
+      created: 1772715685229
+      modified: 1772715724017
+      isPrivate: false
+      description: ""
+      sortKey: -1772715685229
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/brands/1
+    name: Brand-update
+    meta:
+      id: req_a3855073233241489826e072ddad10b1
+      created: 1772715727839
+      modified: 1772715769964
+      isPrivate: false
+      description: ""
+      sortKey: -1772715727839
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"name": "Hayyat"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/districts
+    name: Districts-get all
+    meta:
+      id: req_c3574ee2b75d4506ba67792e238de534
+      created: 1772715776841
+      modified: 1772715978364
+      isPrivate: false
+      description: ""
+      sortKey: -1772715776841
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/districts
+    name: Districts-add
+    meta:
+      id: req_52be1dba3edf4d43a50985a09acc17b8
+      created: 1772715891893
+      modified: 1772869641371
+      isPrivate: false
+      description: ""
+      sortKey: -1772715891893
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"name": "Mir 3",
+        	"city_id": 2
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/districts/1/block
+    name: District-block
+    meta:
+      id: req_701ef97ad5e14e54a63b17827d598738
+      created: 1772716002419
+      modified: 1772716025172
+      isPrivate: false
+      description: ""
+      sortKey: -1772716002419
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/districts/1/unblock
+    name: District-unblock
+    meta:
+      id: req_e4cb5c0496ac48159f5e0f525c6097d0
+      created: 1772716031561
+      modified: 1772716054779
+      isPrivate: false
+      description: ""
+      sortKey: -1772716031561
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/districts/1
+    name: District-put
+    meta:
+      id: req_ba4527f881cd49b4a81a9f0382e079b6
+      created: 1772716067868
+      modified: 1772716108513
+      isPrivate: false
+      description: ""
+      sortKey: -1772716067868
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"name": "Mir 1",
+        	"city_id": 2
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/counterparties
+    name: Counterparties-add
+    meta:
+      id: req_f2a1c2fa3bfa4cc388e895fe0f406a04
+      created: 1772716118331
+      modified: 1772717039478
+      isPrivate: false
+      description: ""
+      sortKey: -1772716118331
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Довлет Logistics",
+          "addresses": [
+            "Ashgabat, Parahat 3, 12",
+            "Ashgabat, Industrial zone 1"
+          ],
+          "phones": [
+            "+993612343367",
+            "+99365222222333"
+          ]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/counterparties
+    name: Counterparties-get all
+    meta:
+      id: req_1106b1906636491781cf472ceae0ec0b
+      created: 1772716579497
+      modified: 1772717079510
+      isPrivate: false
+      description: ""
+      sortKey: -1772716579497
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/counterparties/1/block
+    name: Counterparties-block
+    meta:
+      id: req_44e80d99064e4a14ac572d7c3eae41d1
+      created: 1772717103982
+      modified: 1772717180483
+      isPrivate: false
+      description: ""
+      sortKey: -1772717103982
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/counterparties/2/unblock
+    name: Counterparties-unblock
+    meta:
+      id: req_1444ce0e19b2436cae51cffc9000c403
+      created: 1772717147179
+      modified: 1772717198515
+      isPrivate: false
+      description: ""
+      sortKey: -1772717147179
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/counterparties/1
+    name: Counterparties-update
+    meta:
+      id: req_74554296257447349b853e20cd301865
+      created: 1772717201221
+      modified: 1772721930536
+      isPrivate: false
+      description: ""
+      sortKey: -1772717201221
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Gurban Logistics Updated",
+          "addresses": [
+            "Ashgabat, Parahat 7",
+            "Ashgabat, Mir 5"
+          ],
+          "phones": [
+            "+99361234567",
+            "+99369999999"
+          ]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/product-types
+    name: Product types-get
+    meta:
+      id: req_e372418f0eb94826bfecd49e678f66e0
+      created: 1772721952270
+      modified: 1772724495263
+      isPrivate: false
+      description: ""
+      sortKey: -1772721952270
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/product-types
+    name: Product types-add
+    meta:
+      id: req_46ecbd1ac1e449dda8431b32aa54b42f
+      created: 1772724501001
+      modified: 1772724636765
+      isPrivate: false
+      description: ""
+      sortKey: -1772724501001
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"name": "Suw"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/product-types/1/block
+    name: Product types-block
+    meta:
+      id: req_d44368d67fa249c7a24e80d96a9fa22a
+      created: 1772724624878
+      modified: 1772724692450
+      isPrivate: false
+      description: ""
+      sortKey: -1772724624878
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/product-types/1/unblock
+    name: Product types-unblock
+    meta:
+      id: req_404ad489a1a049f5ba853ccef041991f
+      created: 1772724656255
+      modified: 1772724706187
+      isPrivate: false
+      description: ""
+      sortKey: -1772724656255
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/product-types/1
+    name: Product types-update
+    meta:
+      id: req_e56cd7d5e1d24e62ac77f5554c6197e0
+      created: 1772724714787
+      modified: 1772724756541
+      isPrivate: false
+      description: ""
+      sortKey: -1772724714787
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"name": "napitok"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/product-states
+    name: Product states-get all
+    meta:
+      id: req_c445c1881267427589e028f3f267f605
+      created: 1772724758953
+      modified: 1772773525248
+      isPrivate: false
+      description: ""
+      sortKey: -1772724758953
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/product-states
+    name: Product states-add
+    meta:
+      id: req_67babbeaeb56479f967e5f451e4610d9
+      created: 1772773495372
+      modified: 1772773534726
+      isPrivate: false
+      description: ""
+      sortKey: -1772773495372
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"name": "pustaya"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/product-states/1
+    name: Product states-update
+    meta:
+      id: req_c9e72423d52f442d85a54a8cc32f861d
+      created: 1772773539814
+      modified: 1772773577349
+      isPrivate: false
+      description: ""
+      sortKey: -1772773539814
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"name": "polnaya"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/product-states/1/block
+    name: Product states-block
+    meta:
+      id: req_99667c5c688a4ab4915dc167467d97e7
+      created: 1772773579928
+      modified: 1772773622712
+      isPrivate: false
+      description: ""
+      sortKey: -1772773579928
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/product-states/1/unblock
+    name: Product states-unblock
+    meta:
+      id: req_50d86c6b25344e63b3afd19fa7402648
+      created: 1772773600986
+      modified: 1772773631489
+      isPrivate: false
+      description: ""
+      sortKey: -1772773600986
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/products
+    name: Product-get all
+    meta:
+      id: req_3c61a41911f94a758e3136438e5a81d5
+      created: 1772773639850
+      modified: 1772784039373
+      isPrivate: false
+      description: ""
+      sortKey: -1772773639850
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/products
+    name: Product-add
+    meta:
+      id: req_3baad65925984725b900e5369a48b43d
+      created: 1772774253441
+      modified: 1772774303688
+      isPrivate: false
+      description: ""
+      sortKey: -1772774253441
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Coca Cola",
+          "product_type_id": 1,
+          "brand_id": 1,
+          "volume": "1L",
+          "quantity_per_block": 12
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/products/1/block
+    name: Product-block
+    meta:
+      id: req_bc4c090552544d649f6f927c4cbb51c9
+      created: 1772774307196
+      modified: 1772774350231
+      isPrivate: false
+      description: ""
+      sortKey: -1772774307196
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/products/1/unblock
+    name: Product-unblock
+    meta:
+      id: req_31e2ed92a5ab4f959fb5a29604228f92
+      created: 1772774328813
+      modified: 1772774356845
+      isPrivate: false
+      description: ""
+      sortKey: -1772774328813
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/products/1
+    name: Product-update
+    meta:
+      id: req_c20569a80f1244f5a9aa875b1008a499
+      created: 1772774359688
+      modified: 1772774451443
+      isPrivate: false
+      description: ""
+      sortKey: -1772774359688
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Pepsi",
+          "product_type_id": 1,
+          "brand_id": 1,
+          "volume": "1.5L",
+          "quantity_per_block": 12
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/warehouses
+    name: Warehouses-add
+    meta:
+      id: req_ed9ccdd090224792b8d521972a9b3f61
+      created: 1772774457135
+      modified: 1772782177957
+      isPrivate: false
+      description: ""
+      sortKey: -1772774457135
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Central Warehouse",
+          "addresses": [
+            "Ashgabat Industrial Street 12",
+            "Warehouse District Block A"
+          ],
+          "phones": [
+            "+99365000001",
+            "+99365000002"
+          ]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/warehouses
+    name: Warehouses-get all
+    meta:
+      id: req_6d951d6e04fe41fe987ff1a8dae0d44c
+      created: 1772782021559
+      modified: 1772782200098
+      isPrivate: false
+      description: ""
+      sortKey: -1772782021559
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/warehouses/1/block
+    name: Warehouses-block
+    meta:
+      id: req_cdf43570e2af439b9362e847f3b71173
+      created: 1772782205528
+      modified: 1772782261787
+      isPrivate: false
+      description: ""
+      sortKey: -1772782205528
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/warehouses/1/unblock
+    name: Warehouses-unblock
+    meta:
+      id: req_570739c1a7d541bc85831624ebfba724
+      created: 1772782238625
+      modified: 1772782269289
+      isPrivate: false
+      description: ""
+      sortKey: -1772782238625
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/warehouses/1
+    name: Warehouse-update
+    meta:
+      id: req_db6ac7b23c6942eabf705572695ff550
+      created: 1772782314283
+      modified: 1772782519082
+      isPrivate: false
+      description: ""
+      sortKey: -1772782314283
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Central Warehouse Updated2",
+          "addresses": [
+            "New Industrial Street 55"
+          ],
+          "phones": [
+            "+99365000003"
+          ]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/warehouse/locations/counterparties
+    name: Locations-get counterparties
+    meta:
+      id: req_c8e5086cfdd44d4f92e1dde110c47680
+      created: 1772782526505
+      modified: 1772783135337
+      isPrivate: false
+      description: ""
+      sortKey: -1772782526505
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/warehouse/locations/warehouses
+    name: Location-get warehouses
+    meta:
+      id: req_49648ff6e6a34514a88a77a3c7887f58
+      created: 1772783139985
+      modified: 1772783168564
+      isPrivate: false
+      description: ""
+      sortKey: -1772783139985
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/warehouse/locations/couriers
+    name: Locations-get couriers
+    meta:
+      id: req_06dc2a115ee3419fa404d0cad16c365d
+      created: 1772783170447
+      modified: 1772783201194
+      isPrivate: false
+      description: ""
+      sortKey: -1772783170447
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/warehouse/locations/clients
+    name: Locations-get clients
+    meta:
+      id: req_b1a370421a3c4c3ebba12a4299836ae7
+      created: 1772783242981
+      modified: 1772783272857
+      isPrivate: false
+      description: ""
+      sortKey: -1772783242981
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/warehouse/stocks/receive_from_counterparty
+    name: Transactions-from counterparty to warehouse
+    meta:
+      id: req_706716ad0a104d779eac402379d7bd88
+      created: 1772783276059
+      modified: 1772784326765
+      isPrivate: false
+      description: ""
+      sortKey: -1772783276059
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "from_location_id": 3,
+          "to_location_id": 6,
+          "product_id": 1,
+          "product_state_id": 1,
+          "quantity": 200,
+          "note": "Партия 2345 с завода"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/warehouse/stocks?location_type=warehouse
+    name: Transactions-get stock information in warehouse
+    meta:
+      id: req_979b6dd00d364495b27876b82c2177d8
+      created: 1772786810481
+      modified: 1772855338664
+      isPrivate: false
+      description: ""
+      sortKey: -1772786810481
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/warehouse/transactions_from_counterparties?start_date=2026-01-01T00:00:00&end_date=2026-03-07T23:59:59&page=1&per_page=10
+    name: Transactions-what was get from counterparty to warehouse
+    meta:
+      id: req_be4187f50ab14ea0aeca7889b01fc5b5
+      created: 1772786919413
+      modified: 1772855194576
+      isPrivate: false
+      description: ""
+      sortKey: -1772786919413
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/warehouse/transaction
+    name: Transactions-from or to warehouse and courier
+    meta:
+      id: req_36780a9d45554bec946040ec893eea84
+      created: 1772855328539
+      modified: 1772862155227
+      isPrivate: false
+      description: ""
+      sortKey: -1772855328539
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "from_location_id": 6,
+          "to_location_id": 2,
+          "product_id": 1,
+          "product_state_id": 1,
+          "quantity": 55,
+          "operation_type": "courier_issue",
+          "note": "Перемещение излишков со склада курьеру"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/warehouse/transactions?lang=ru&start_date=2026-01-01T00:00:00&end_date=2026-03-07T23:59:59&user_id=1&operation_type=courier_issue&page=1&per_page=10
+    name: Tranasctions-from or to warehouse and courier (all)
+    meta:
+      id: req_55f0bb97663148d3839f63d706ab40a9
+      created: 1772857291464
+      modified: 1772857424753
+      isPrivate: false
+      description: ""
+      sortKey: -1772857291464
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/warehouse/transaction/3
+    name: Transactions-delete
+    meta:
+      id: req_fb67849d94ff4e359d91d2a13908f759
+      created: 1772857427304
+      modified: 1772857980053
+      isPrivate: false
+      description: ""
+      sortKey: -1772857427304
+    method: DELETE
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/courier/stocks
+    name: Courier-warehouse-get all in stock
+    meta:
+      id: req_3b9061c3409c47cc9a517e8a9893ec9a
+      created: 1772858474844
+      modified: 1772858887450
+      isPrivate: false
+      description: ""
+      sortKey: -1772858474844
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/courier/transactions?date=2026-03-07&lang=ru
+    name: Courier-transactions for date-get all
+    meta:
+      id: req_0387cce182b143a49d55b1b86c982cfc
+      created: 1772859168662
+      modified: 1772860140632
+      isPrivate: false
+      description: ""
+      sortKey: -1772859168662
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/users?role=courier
+    name: Courier-get courier list
+    meta:
+      id: req_5070692d5db148e0a620128e929799d8
+      created: 1772860143669
+      modified: 1772861472288
+      isPrivate: false
+      description: ""
+      sortKey: -1772860143669
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/courier/transactions
+    name: Courier-transfer between couriers
+    meta:
+      id: req_ec39814996b24c5bb993817562ddddcf
+      created: 1772861475126
+      modified: 1772862201002
+      isPrivate: false
+      description: ""
+      sortKey: -1772861475126
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+            "to_user_id": 5,
+            "product_id": 1,
+            "product_state_id": 1,
+            "quantity": 5,
+            "note": "Передал 5 бутылок воды коллеге на заправке"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/courier/transactions/5?lang=ru
+    name: Courier-get information about specific transaction
+    meta:
+      id: req_7b39952fe3ad46deb97c6e269594de5a
+      created: 1772862203806
+      modified: 1772862904277
+      isPrivate: false
+      description: ""
+      sortKey: -1772862203806
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: 127.0.0.1:5000/api/admin/users/3/equipment
+    name: Courier profile-add or edit transport number and device info
+    meta:
+      id: req_8d6681b499204b298c26e3f7713575f4
+      created: 1772862908195
+      modified: 1772869384255
+      isPrivate: false
+      description: ""
+      sortKey: -1772862908195
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "transport_number": "777",
+          "device_info": "Samsung Galaxy S24"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/users/3/districts/attach
+    name: Courier profile-add districts to courier
+    meta:
+      id: req_0a33ced7404944fe9a4cd9e3b46abc2a
+      created: 1772869387476
+      modified: 1772869866033
+      isPrivate: false
+      description: ""
+      sortKey: -1772869387476
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+            "city_id": 2,
+            "district_ids": [1, 2]
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/users/3/districts/2
+    name: Courier profile-deattach districts from courier
+    meta:
+      id: req_9302bda377534d1892764f287a5c811a
+      created: 1772869869948
+      modified: 1772869970081
+      isPrivate: false
+      description: ""
+      sortKey: -1772869869948
+    method: DELETE
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/couriers/full-list
+    name: Courier profile-get all info
+    meta:
+      id: req_f526a2da01124ade9e6b51097890cac6
+      created: 1772869975825
+      modified: 1772870070319
+      isPrivate: false
+      description: ""
+      sortKey: -1772869975825
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/clients
+    name: Client-add
+    meta:
+      id: req_f4e444f4b16f4c7aac3413ea69ff4f97
+      created: 1772943726797
+      modified: 1772943856070
+      isPrivate: false
+      description: ""
+      sortKey: -1772943726797
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"full_name": "Dovlet Saryyev",
+        	"price_type_id": 1
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/clients
+    name: Client-get all
+    meta:
+      id: req_457b0ff7a4e8421692d7bb917478edf4
+      created: 1772943861974
+      modified: 1772943963224
+      isPrivate: false
+      description: ""
+      sortKey: -1772943861974
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/clients/1
+    name: Client-get one
+    meta:
+      id: req_a405be4c5272442fbc70559667a4acda
+      created: 1772943900500
+      modified: 1772943938221
+      isPrivate: false
+      description: ""
+      sortKey: -1772943900500
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/clients/1/toggle-active
+    name: Client-block
+    meta:
+      id: req_8dc1d8109ea34134946a03571aa4e63d
+      created: 1772943974083
+      modified: 1772944227759
+      isPrivate: false
+      description: ""
+      sortKey: -1772943974083
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+            "is_active": false,
+            "reason": "Систематическая задержка оплаты за последние 3 заказа"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/clients/1/toggle-active
+    name: Client-unblock
+    meta:
+      id: req_eaf2565f18af44cd85a8eca956adfa37
+      created: 1772944095763
+      modified: 1772944218011
+      isPrivate: false
+      description: ""
+      sortKey: -1772944095763
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+            "is_active": true
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/clients/1/block-reasons
+    name: Client-block reasons
+    meta:
+      id: req_f4fc9e8056414a3e80fe8922a8f85f1d
+      created: 1772944236494
+      modified: 1772944304342
+      isPrivate: false
+      description: ""
+      sortKey: -1772944236494
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/clients/1/phones
+    name: Client-add phone information
+    meta:
+      id: req_e6df33b73b0b4c3085c86c169574ee70
+      created: 1772944307072
+      modified: 1772944422148
+      isPrivate: false
+      description: ""
+      sortKey: -1772944307072
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+            "phone": "+79991234567"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/clients/1/phones
+    name: Client-get phone information
+    meta:
+      id: req_49e21e800d9b4ce08253f2931be7f38a
+      created: 1772944429411
+      modified: 1772944443479
+      isPrivate: false
+      description: ""
+      sortKey: -1772944429411
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/clients/phones/1
+    name: Client-delete phone information
+    meta:
+      id: req_fba7b8290bd240c79d61cc88573edb31
+      created: 1772944449597
+      modified: 1772944506547
+      isPrivate: false
+      description: ""
+      sortKey: -1772944449597
+    method: DELETE
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/clients/1/addresses
+    name: Client-add address information
+    meta:
+      id: req_4c60a6d752234d69b168c3f35a8980bd
+      created: 1772944510172
+      modified: 1772945073062
+      isPrivate: false
+      description: ""
+      sortKey: -1772944510172
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"city_id" : 2,
+        	"district_id": 1,
+        	"address_line" : "krasiwo"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/clients/1/addresses
+    name: Client-get addresses
+    meta:
+      id: req_205653bb23c142ddb7f9078cc991f4bc
+      created: 1772945075515
+      modified: 1772945100173
+      isPrivate: false
+      description: ""
+      sortKey: -1772945075515
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/clients/addresses/1
+    name: Client-delete address
+    meta:
+      id: req_c9590d55e7c14acaa02afe6d88208732
+      created: 1772945105068
+      modified: 1772945146544
+      isPrivate: false
+      description: ""
+      sortKey: -1772945105068
+    method: DELETE
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/clients/1
+    name: Client-update
+    meta:
+      id: req_3d26da4b64264b7da54a83896a811432
+      created: 1772945149510
+      modified: 1772945281548
+      isPrivate: false
+      description: ""
+      sortKey: -1772945149510
+    method: PATCH
+    body:
+      mimeType: application/json
+      text: |-
+        {
+            "full_name": "ООО Вектор Плюс",
+            "price_type_id": 1
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/clients/1/credit
+    name: Client-add credit limit information or update
+    meta:
+      id: req_8edcc28393504adda32b69c1aa91ec08
+      created: 1772945284083
+      modified: 1772946884517
+      isPrivate: false
+      description: ""
+      sortKey: -1772945284083
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+            "credit_limit": 50000.00
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/clients/1/credit
+    name: Client-get information about credit of user
+    meta:
+      id: req_caa87ff11cf548b7829d6173fedd83ba
+      created: 1772945476706
+      modified: 1772946935825
+      isPrivate: false
+      description: ""
+      sortKey: -1772945476706
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/clients/1/credit/payments?page=1&per_page=10
+    name: Client-get information about payments of credits
+    meta:
+      id: req_976e879f94c94acf9084af3093336393
+      created: 1772946940670
+      modified: 1772946997009
+      isPrivate: false
+      description: ""
+      sortKey: -1772946940670
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/credit-payments
+    name: Client-add payment info(payment or write_off)
+    meta:
+      id: req_14462d868d7b4044b969756d5208a333
+      created: 1772947122702
+      modified: 1772947458277
+      isPrivate: false
+      description: ""
+      sortKey: -1772947122702
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+            "client_credit_id": 1,
+            "amount": 2500.50,
+            "payment_type": "payment",
+            "description": "Оплата наличными, чек №12345"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/services
+    name: Services-add
+    meta:
+      id: req_cecc1d7853f745268b1912f2a3ea0f5b
+      created: 1772952229516
+      modified: 1772952294146
+      isPrivate: false
+      description: ""
+      sortKey: -1772952229516
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+            "name": "Продажа воды сарван",
+            "is_active": true
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/services/1/toggle
+    name: Services-block and unblock
+    meta:
+      id: req_09d9e3e969f144978c2876bca5c16406
+      created: 1772952298711
+      modified: 1772952332061
+      isPrivate: false
+      description: ""
+      sortKey: -1772952298711
+    method: PATCH
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/services/prices
+    name: "Services-add or update prices "
+    meta:
+      id: req_38297499ac65469fb9f69663554d640a
+      created: 1772952334890
+      modified: 1772953009358
+      isPrivate: false
+      description: ""
+      sortKey: -1772952334890
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+            "service_id": 2,
+            "city_id": 2,
+            "price_type_id": 1,
+            "price": 10.50
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/services
+    name: Services-get all
+    meta:
+      id: req_0a3d56a2a770427ba29128ce501ce4a3
+      created: 1772952401265
+      modified: 1772953113829
+      isPrivate: false
+      description: ""
+      sortKey: -1772952264113.5
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/services/prices/1
+    name: Services-delete prices
+    meta:
+      id: req_273a9e04dfd4471d99dfed847e560344
+      created: 1772952809021
+      modified: 1772953110608
+      isPrivate: false
+      description: ""
+      sortKey: -1772952368077.5
+    method: DELETE
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: ""
+    name: New Request
+    meta:
+      id: req_233ebc2dad334461ba4178d8715a177c
+      created: 1772953099449
+      modified: 1772953099449
+      isPrivate: false
+      description: ""
+      sortKey: -1772953099449
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: ""
+    name: New Request
+    meta:
+      id: req_5c7a4a1cdc334ace8afd20f5665b8d33
+      created: 1772955989537
+      modified: 1772955989537
+      isPrivate: false
+      description: ""
+      sortKey: -1772955989537
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_aca031e23bdc4997a34cae3671680f0d
+    created: 1772691279748
+    modified: 1772956017723
+  cookies:
+    - id: 9c8c46e2-f1fe-48d7-95ca-e947214e1eaf
+      key: session
+      value: eyJfcGVybWFuZW50Ijp0cnVlLCJyb2xlIjoiYWRtaW4iLCJ1c2VyX2lkIjoxfQ.aa0pcQ.6kR4wsTHgGEdlF2YnnJZkthPuo0
+      domain: 127.0.0.1
+      path: /
+      secure: false
+      httpOnly: true
+      hostOnly: true
+environments:
+  name: Base Environment
+  meta:
+    id: env_defdba3f3f914520904362c7c02e4286
+    created: 1772691279739
+    modified: 1772691279739
+    isPrivate: false
