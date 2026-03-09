@@ -285,6 +285,7 @@ CREATE TABLE discounts (
     end_date DATE NULL,
     start_time TIME NULL,
     end_time TIME NULL,
+    is_combinable BOOLEAN NOT NULL DEFAULT FALSE,
     is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
@@ -304,6 +305,15 @@ CREATE TABLE discount_cities (
     PRIMARY KEY (discount_id, city_id),
     FOREIGN KEY (discount_id) REFERENCES discounts(id),
     FOREIGN KEY (city_id) REFERENCES cities(id)
+);
+
+-- Промежуточная таблица связи M:N: discounts <-> price_types
+CREATE TABLE discount_price_types (
+    discount_id INT NOT NULL,
+    price_type_id INT NOT NULL,
+    PRIMARY KEY (discount_id, price_type_id),
+    FOREIGN KEY (discount_id) REFERENCES discounts(id) ON DELETE CASCADE,
+    FOREIGN KEY (price_type_id) REFERENCES price_types(id) ON DELETE CASCADE
 );
 
 -- Таблица заказов

@@ -7,7 +7,7 @@ from api.courier import courier_bp
 from flask_cors import CORS
 import os
 from db import Db
-
+from api.operator import operator_bp
 
 def create_app():
     app = Flask(__name__)
@@ -25,6 +25,7 @@ def create_app():
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.register_blueprint(warehouse_bp, url_prefix='/api/warehouse')
     app.register_blueprint(courier_bp, url_prefix='/api/courier')
+    app.register_blueprint(operator_bp, url_prefix='/api/operator')
 
     return app
 
