@@ -6,6 +6,225 @@ from . import operator_bp
 from decorators import roles_required
 from all_types_description import PaymentTypes, DeliveryTimes, OrderStatuses
 
+def _calculate_order_price_internal(cursor, client_id, client_city_id, client_price_type_id, items, for_creation=False):
+    from decimal import Decimal
+    from datetime import datetime
+
+    total_order_price = Decimal('0.0')
+    order_items_calculated = []
+    
+    for item in items:
+        if 'service_id' not in item or 'quantity' not in item:
+            raise ValueError('Каждая позиция (item) должна содержать service_id и quantity')
+            
+        service_id = item['service_id']
+        quantity = Decimal(str(item['quantity']))
+        
+        cursor.execute("""
+            SELECT price FROM service_prices 
+            WHERE service_id = %s AND city_id = %s AND price_type_id = %s
+        """, (service_id, client_city_id, client_price_type_id))
+        price_row = cursor.fetchone()
+        
+        price = None
+        total_item_price = None
+        
+        if price_row and price_row['price'] is not None:
+            price = Decimal(str(price_row['price']))
+            total_item_price = price * quantity
+            total_order_price = total_order_price + total_item_price
+            
+        order_items_calculated.append({
+            'service_id': service_id,
+            'quantity': quantity,
+            'price': price,
+            'total_price': total_item_price or Decimal('0.0')
+        })
+
+    applied_discounts = []
+    if total_order_price > 0:
+        now = datetime.now()
+        current_date = now.date()
+        current_time = now.time()
+        
+        discount_sql = """
+            SELECT 
+                d.*,
+                GROUP_CONCAT(DISTINCT dc.city_id) as city_ids,
+                GROUP_CONCAT(DISTINCT ds.service_id) as service_ids,
+                GROUP_CONCAT(DISTINCT dp.price_type_id) as price_type_ids
+            FROM discounts d
+            LEFT JOIN discount_cities dc ON d.id = dc.discount_id
+            LEFT JOIN discount_services ds ON d.id = ds.discount_id
+            LEFT JOIN discount_price_types dp ON d.id = dp.discount_id
+            WHERE d.is_active = 1
+              AND (d.start_date IS NULL OR d.start_date <= %s)
+              AND (d.end_date IS NULL OR d.end_date >= %s)
+              AND (d.start_time IS NULL OR d.start_time <= %s)
+              AND (d.end_time IS NULL OR d.end_time >= %s)
+              AND (d.limit_count IS NULL OR d.usage_count < d.limit_count)
+            GROUP BY d.id
+        """
+        cursor.execute(discount_sql, (current_date, current_date, current_time, current_time))
+        potential_discounts = cursor.fetchall()
+        
+        valid_discounts = []
+        client_order_count = None
+        
+        for d in potential_discounts:
+            d_cities = [int(x) for x in d['city_ids'].split(',')] if d['city_ids'] else []
+            d_services = [int(x) for x in d['service_ids'].split(',')] if d['service_ids'] else []
+            d_prices = [int(x) for x in d['price_type_ids'].split(',')] if d['price_type_ids'] else []
+            
+            if d_cities and client_city_id not in d_cities:
+                continue
+            if d_prices and client_price_type_id not in d_prices:
+                continue
+                
+            eligible_amount = Decimal('0.0')
+            if d_services:
+                has_service = False
+                for itm in order_items_calculated:
+                    if itm['service_id'] in d_services:
+                        has_service = True
+                        eligible_amount = eligible_amount + Decimal(str(itm['total_price']))
+                if not has_service:
+                    continue
+            else:
+                eligible_amount = total_order_price
+
+            if eligible_amount <= 0:
+                continue
+
+
+            amount = Decimal('0.0')
+            d_type = d['discount_type']
+            val = Decimal(str(d['value'])) if d.get('value') is not None else Decimal('0.0')
+            
+            if d_type == 'fixed_amount':
+                amount = min(val, eligible_amount)
+            elif d_type == 'percentage':
+                amount = (eligible_amount * val) / Decimal('100.0')
+            elif d_type == 'fixed_price':
+                if eligible_amount > val:
+                    amount = eligible_amount - val
+            elif d_type == 'free_n_th_order':
+                nth = d.get('nth_order')
+                if nth and nth > 0:
+                    if client_order_count is None:
+                        cursor.execute("SELECT COUNT(*) as count FROM orders WHERE client_id = %s", (client_id,))
+                        client_order_count = cursor.fetchone()['count']
+                        
+                    check_count = (client_order_count + 1) if for_creation else (client_order_count + 1)
+                    if check_count % nth == 0:
+                        amount = eligible_amount
+            
+            if amount > 0:
+                valid_discounts.append({
+                    'id': d['id'],
+                    'name': d['name'],
+                    'amount': amount,
+                    'is_combinable': bool(d['is_combinable'])
+                })
+        
+        combinable = [d for d in valid_discounts if d['is_combinable']]
+        non_combinable = [d for d in valid_discounts if not d['is_combinable']]
+        
+        combinable_total = sum(d['amount'] for d in combinable)
+        best_nc = max(non_combinable, key=lambda x: x['amount']) if non_combinable else None
+        best_nc_amount = best_nc['amount'] if best_nc else Decimal('0.0')
+        
+        if combinable_total > best_nc_amount:
+            remaining = total_order_price
+            for d in combinable:
+                amt = min(d['amount'], remaining)
+                if amt > 0:
+                    applied_discounts.append({'id': d['id'], 'name': d['name'], 'amount': amt})
+                    remaining -= amt
+        elif best_nc:
+            amt = min(best_nc_amount, total_order_price)
+            if amt > 0:
+                applied_discounts.append({'id': best_nc['id'], 'name': best_nc['name'], 'amount': amt})
+
+    total_discount_amount = sum(d['amount'] for d in applied_discounts)
+    final_order_price = total_order_price - total_discount_amount
+    if final_order_price < 0:
+        final_order_price = Decimal('0.0')
+
+    return {
+        'total_order_price': total_order_price,
+        'order_items_calculated': order_items_calculated,
+        'applied_discounts': applied_discounts,
+        'total_discount_amount': total_discount_amount,
+        'final_order_price': final_order_price
+    }
+
+
+
+# -------------------------------------------------------------
+# Расчет стоимости заказа (без создания)
+# -------------------------------------------------------------
+@operator_bp.route('/orders/calculate', methods=['POST'])
+@roles_required('admin', 'operator')
+def calculate_order_price():
+    data = request.get_json()
+    
+    required_fields = ['client_id', 'client_address_id', 'items']
+    
+    if not all(field in data for field in required_fields):
+        return jsonify({'error': 'Не все обязательные поля заполнены'}), 400
+        
+    if not data['items'] or len(data['items']) == 0:
+        return jsonify({'error': 'Заказ должен содержать хотя бы одну услугу'}), 400
+
+    conn = Db.get_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT price_type_id FROM clients WHERE id = %s AND is_active = 1", (data['client_id'],))
+            client = cursor.fetchone()
+            if not client:
+                return jsonify({'error': 'Активный клиент не найден'}), 404
+            client_price_type_id = client['price_type_id']
+                
+            cursor.execute("""
+                SELECT city_id FROM client_addresses 
+                WHERE id = %s AND client_id = %s
+            """, (data['client_address_id'], data['client_id']))
+            address_info = cursor.fetchone()
+            if not address_info:
+                return jsonify({'error': 'Адрес клиента не найден или не принадлежит указанному клиенту'}), 404
+            client_city_id = address_info['city_id']
+
+            try:
+                calc_result = _calculate_order_price_internal(
+                    cursor,
+                    data['client_id'], 
+                    client_city_id, 
+                    client_price_type_id, 
+                    data['items'],
+                    for_creation=False
+                )
+                
+                # Format to float for JSON
+                calc_result['total_order_price'] = float(calc_result['total_order_price'])
+                calc_result['total_discount_amount'] = float(calc_result['total_discount_amount'])
+                calc_result['final_order_price'] = float(calc_result['final_order_price'])
+                for item in calc_result['order_items_calculated']:
+                    if item['price'] is not None: item['price'] = float(item['price'])
+                    item['total_price'] = float(item['total_price'])
+                for dc in calc_result['applied_discounts']:
+                    dc['amount'] = float(dc['amount'])
+                    
+                return jsonify(calc_result), 200
+
+            except ValueError as ve:
+                return jsonify({'error': str(ve)}), 400
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
 # -------------------------------------------------------------
 # Создание заказа
 # -------------------------------------------------------------
@@ -75,199 +294,85 @@ def create_order():
                 if not cursor.fetchone():
                     return jsonify({'error': 'Профиль курьера не найден'}), 404
 
-            # 2. Создание заголовка заказа (создаем пустой total_amount=0, потом обновим)
+
+            # 2. Расчет суммы и скидок
+            try:
+                calc_result = _calculate_order_price_internal(
+                    cursor, 
+                    data['client_id'], 
+                    client_city_id, 
+                    client_price_type_id, 
+                    data['items'],
+                    for_creation=True
+                )
+            except ValueError as ve:
+                conn.rollback()
+                return jsonify({'error': str(ve)}), 400
+                
+            total_order_price = calc_result['total_order_price']
+            final_order_price = calc_result['final_order_price']
+            total_discount_amount = calc_result['total_discount_amount']
+            order_items_calculated = calc_result['order_items_calculated']
+            applied_discounts = calc_result['applied_discounts']
+
+            # 3. Расчет кэша/карты, если не были переданы, иначе берем из данных (или 0)
+            calc_cash_amount = data.get('cash_amount')
+            calc_card_amount = data.get('card_amount')
+            
+            if calc_cash_amount is None and calc_card_amount is None:
+                if data['payment_type'] == 'cash':
+                    calc_cash_amount = final_order_price
+                    calc_card_amount = Decimal('0.0')
+                elif data['payment_type'] == 'card':
+                    calc_cash_amount = Decimal('0.0')
+                    calc_card_amount = final_order_price
+                else: 
+                    calc_cash_amount = Decimal('0.0')
+                    calc_card_amount = Decimal('0.0')
+
+            # 4. Создание заголовка заказа
             sql_order = """
                 INSERT INTO orders (client_id, client_address_id, client_phone_id, courier_id, 
                                   user_id, note, delivery_date, delivery_time_type, 
                                   delivery_time, payment_type, cash_amount, card_amount, status, total_amount)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
-            user_id = session.get('user_id', 1)  # Дефолт 1 
+            user_id = session.get('user_id', 1) 
             order_params = (
                 data['client_id'], data['client_address_id'], data['client_phone_id'], 
                 data.get('courier_id'), user_id, data.get('note'), 
                 delivery_date, data['delivery_time_type'], delivery_time, 
-                data['payment_type'], data.get('cash_amount'), data.get('card_amount'), OrderStatuses.PENDING, 0.00
+                data['payment_type'], calc_cash_amount, calc_card_amount, OrderStatuses.PENDING, final_order_price
             )
             cursor.execute(sql_order, order_params)
             order_id = cursor.lastrowid
             
-            # 3. Добавление услуг (items) и расчет суммы
-            total_order_price = Decimal('0.0')
+            # 5. Добавление услуг (items)
             items_for_insert = []
+            for item in order_items_calculated:
+                items_for_insert.append((
+                    order_id, 
+                    item['service_id'], 
+                    item['quantity'], 
+                    item['price'], 
+                    item['total_price']
+                ))
             
-            # Вспомогательный массив для расчета скидок
-            order_items_calculated = []
-
-            for item in data['items']:
-                if 'service_id' not in item or 'quantity' not in item:
-                    conn.rollback()
-                    return jsonify({'error': 'Каждая позиция (item) должна содержать service_id и quantity'}), 400
-                    
-                service_id = item['service_id']
-                quantity = Decimal(str(item['quantity']))
-                
-                # Поиск цены для данной услуги в данном городе по данному типу прайса клиента
-                cursor.execute("""
-                    SELECT price FROM service_prices 
-                    WHERE service_id = %s AND city_id = %s AND price_type_id = %s
-                """, (service_id, client_city_id, client_price_type_id))
-                price_row = cursor.fetchone()
-                
-                price = None
-                total_item_price = None
-                
-                if price_row and price_row['price'] is not None:
-                    price = Decimal(str(price_row['price']))
-                    total_item_price = price * quantity
-                    total_order_price = total_order_price + total_item_price
-                    
-                items_for_insert.append((order_id, service_id, quantity, price, total_item_price))
-                order_items_calculated.append({
-                    'service_id': service_id,
-                    'quantity': quantity,
-                    'price': price,
-                    'total_price': total_item_price or Decimal('0.0')
-                })
-            
-            sql_items = """
-                INSERT INTO order_items (order_id, service_id, quantity, price, total_price)
-                VALUES (%s, %s, %s, %s, %s)
-            """
-            cursor.executemany(sql_items, items_for_insert)
-            
-            # 4. Система скидок
-            applied_discounts = []
-            if total_order_price > 0:
-                now = datetime.now()
-                current_date = now.date()
-                current_time = now.time()
-                
-                # Загружаем все потенциально доступные скидки (активные + подходящие по времени и лимитам)
-                discount_sql = """
-                    SELECT 
-                        d.*,
-                        GROUP_CONCAT(DISTINCT dc.city_id) as city_ids,
-                        GROUP_CONCAT(DISTINCT ds.service_id) as service_ids,
-                        GROUP_CONCAT(DISTINCT dp.price_type_id) as price_type_ids
-                    FROM discounts d
-                    LEFT JOIN discount_cities dc ON d.id = dc.discount_id
-                    LEFT JOIN discount_services ds ON d.id = ds.discount_id
-                    LEFT JOIN discount_price_types dp ON d.id = dp.discount_id
-                    WHERE d.is_active = 1
-                      AND (d.start_date IS NULL OR d.start_date <= %s)
-                      AND (d.end_date IS NULL OR d.end_date >= %s)
-                      AND (d.start_time IS NULL OR d.start_time <= %s)
-                      AND (d.end_time IS NULL OR d.end_time >= %s)
-                      AND (d.limit_count IS NULL OR d.usage_count < d.limit_count)
-                    GROUP BY d.id
+            if items_for_insert:
+                sql_items = """
+                    INSERT INTO order_items (order_id, service_id, quantity, price, total_price)
+                    VALUES (%s, %s, %s, %s, %s)
                 """
-                cursor.execute(discount_sql, (current_date, current_date, current_time, current_time))
-                potential_discounts = cursor.fetchall()
-                
-                valid_discounts = []
-                client_order_count = None  # Кэш для N-го заказа
-                
-                for d in potential_discounts:
-                    # Разбираем GROUP_CONCAT
-                    d_cities = [int(x) for x in d['city_ids'].split(',')] if d['city_ids'] else []
-                    d_services = [int(x) for x in d['service_ids'].split(',')] if d['service_ids'] else []
-                    d_prices = [int(x) for x in d['price_type_ids'].split(',')] if d['price_type_ids'] else []
-                    
-                    # Проверка города
-                    if d_cities and client_city_id not in d_cities:
-                        continue
-                        
-                    # Проверка типа прайс-листа
-                    if d_prices and client_price_type_id not in d_prices:
-                        continue
-                        
-                    # Определение базовой суммы для скидки (eligible_amount)
-                    eligible_amount = Decimal('0.0')
-                    if d_services:
-                        # Если скидка привязана к услугам — считаем сумму только по этим услугам
-                        has_service = False
-                        for item in order_items_calculated:
-                            if item['service_id'] in d_services:
-                                has_service = True
-                                eligible_amount = eligible_amount + Decimal(str(item['total_price']))
-                        if not has_service:
-                            continue
-                    else:
-                        # Если не привязана, скидка применяется ко всему заказу
-                        eligible_amount = total_order_price
+                cursor.executemany(sql_items, items_for_insert)
+            
+            # 6. Система скидок
+            for cd in applied_discounts:
+                cursor.execute("""
+                    INSERT INTO order_discounts (order_id, discount_id, discount_amount) 
+                    VALUES (%s, %s, %s)
+                """, (order_id, cd['id'], cd['amount']))
+                cursor.execute("UPDATE discounts SET usage_count = usage_count + 1 WHERE id = %s", (cd['id'],))
 
-                    if eligible_amount <= 0:
-                        continue
-
-                    # Расчет размера самой скидки
-                    amount = Decimal('0.0')
-                    d_type = d['discount_type']
-                    val = Decimal(str(d['value'])) if d.get('value') is not None else Decimal('0.0')
-                    
-                    if d_type == 'fixed_amount':
-                        amount = min(val, eligible_amount)
-                    elif d_type == 'percentage':
-                        amount = (eligible_amount * val) / Decimal('100.0')
-                    elif d_type == 'fixed_price':
-                        if eligible_amount > val:
-                            amount = eligible_amount - val
-                    elif d_type == 'free_n_th_order':
-                        nth = d.get('nth_order')
-                        if nth and nth > 0:
-                            if client_order_count is None:
-                                cursor.execute("SELECT COUNT(*) as count FROM orders WHERE client_id = %s", (data['client_id'],))
-                                client_order_count = cursor.fetchone()['count']
-                            if (client_order_count + 1) % nth == 0:
-                                amount = eligible_amount
-                    
-                    if amount > 0:
-                        valid_discounts.append({
-                            'discount_id': d['id'],
-                            'amount': amount,
-                            'is_combinable': bool(d['is_combinable'])
-                        })
-                
-                # Выбор оптимальной комбинации скидок
-                combinable = [d for d in valid_discounts if d['is_combinable']]
-                non_combinable = [d for d in valid_discounts if not d['is_combinable']]
-                
-                combinable_total = sum(d['amount'] for d in combinable)
-                best_nc = max(non_combinable, key=lambda x: x['amount']) if non_combinable else None
-                best_nc_amount = best_nc['amount'] if best_nc else Decimal('0.0')
-                
-                chosen_discounts = []
-                if combinable_total > best_nc_amount:
-                    # Применяем все комбинируемые скидки, следим чтобы общая скидка не превысила сумму заказа
-                    remaining = total_order_price
-                    for d in combinable:
-                        amt = min(d['amount'], remaining)
-                        if amt > 0:
-                            chosen_discounts.append({'id': d['discount_id'], 'amount': amt})
-                            remaining -= amt
-                elif best_nc:
-                    # Применяем лучшую некомбинируемую скидку
-                    amt = min(best_nc_amount, total_order_price)
-                    if amt > 0:
-                        chosen_discounts.append({'id': best_nc['discount_id'], 'amount': amt})
-
-                # Запись скидок в БД
-                for cd in chosen_discounts:
-                    cursor.execute("""
-                        INSERT INTO order_discounts (order_id, discount_id, discount_amount) 
-                        VALUES (%s, %s, %s)
-                    """, (order_id, cd['id'], cd['amount']))
-                    cursor.execute("UPDATE discounts SET usage_count = usage_count + 1 WHERE id = %s", (cd['id'],))
-                    applied_discounts.append(cd)
-
-            # Вычисляем финальную сумму заказа с учетом скидок
-            total_discount_amount = sum(d['amount'] for d in applied_discounts)
-            final_order_price = total_order_price - total_discount_amount
-            if final_order_price < 0:
-                final_order_price = Decimal('0.0')
-
-            # Обновляем total_amount в заказах
-            cursor.execute("UPDATE orders SET total_amount = %s WHERE id = %s", (final_order_price, order_id))
 
             # 5. Обработка кредита
             if data['payment_type'] == PaymentTypes.CREDIT and final_order_price > 0:
