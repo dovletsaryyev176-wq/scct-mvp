@@ -1,9 +1,9 @@
-import datetime
 from flask import jsonify, request
 from . import admin_bp
 from decorators import roles_required
 from db import Db
 from all_types_description import DiscountTypes
+import datetime
 
 
 VALID_DISCOUNT_TYPES = set(DiscountTypes.LABELS.keys())
@@ -66,32 +66,46 @@ def parse_time(value, fmt='%H:%M'):
 
 
 def serialize_discount(d, lang='ru'):
+    if d.get('value') is not None: 
+        d['value'] = float(d['value'])
+        
+    if d.get('start_date'): 
+        d['start_date'] = d['start_date'].isoformat()
+        
+    if d.get('end_date'): 
+        d['end_date'] = d['end_date'].isoformat()
 
-    if d.get('value'): d['value'] = float(d['value'])
-    if d.get('start_date'): d['start_date'] = d['start_date'].isoformat()
-    if d.get('end_date'): d['end_date'] = d['end_date'].isoformat()
-    if d.get('start_time'):
-        hours, remainder = divmod(d['start_time'].seconds, 3600)
-        minutes, _ = divmod(remainder, 60)
-        d['start_time'] = f"{hours:02}:{minutes:02}"
-    if d.get('end_time'):
-        hours, remainder = divmod(d['end_time'].seconds, 3600)
-        minutes, _ = divmod(remainder, 60)
-        d['end_time'] = f"{hours:02}:{minutes:02}"
+    # --- ИСПРАВЛЕННЫЙ БЛОК ДЛЯ ВРЕМЕНИ ---
+    for time_field in ['start_time', 'end_time']:
+        val = d.get(time_field)
+        if val is not None: # Строго проверяем на None (чтобы '00:00:00' не отсеивалось)
+            if isinstance(val, datetime.timedelta):
+                # Если это timedelta (например, от PyMySQL)
+                total_seconds = int(val.total_seconds())
+                hours, remainder = divmod(total_seconds, 3600)
+                minutes, _ = divmod(remainder, 60)
+                d[time_field] = f"{hours:02}:{minutes:02}"
+            elif isinstance(val, datetime.time):
+                # Если это стандартный объект time
+                d[time_field] = val.strftime('%H:%M')
+            else:
+                # Фолбэк для строк
+                d[time_field] = str(val)[:5]
+    # ---------------------------------------
 
     d['is_combinable'] = bool(d.get('is_combinable'))
     d['is_active'] = bool(d.get('is_active'))
 
     for key in ['service_ids', 'city_ids', 'price_type_ids']:
         val = d.get(key)
-        d[key] = [int(x) for x in val.split(',')] if val else []
+        # Учитываем, что val может быть не строкой (добавляем str(val))
+        d[key] = [int(x) for x in str(val).split(',')] if val else []
 
     discount_type = d.get('discount_type')
     labels = DiscountTypes.LABELS.get(discount_type, {})
     d['discount_type_label'] = labels.get(lang) or labels.get('ru')
 
     return d
-
 
 @admin_bp.route('/discounts', methods=['GET'])
 def get_discounts():

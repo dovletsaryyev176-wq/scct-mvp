@@ -213,7 +213,7 @@ collection:
     meta:
       id: req_96a312988a394cd5af93376b08f19d55
       created: 1772691549783
-      modified: 1772687562651
+      modified: 1773114977031
       isPrivate: false
       description: ""
       sortKey: -1772691549783
@@ -222,7 +222,7 @@ collection:
       mimeType: application/json
       text: |-
         {
-        	"name": "Arkadag"
+        	"name": "Ashgabat"
         }
     headers:
       - name: Content-Type
@@ -544,7 +544,7 @@ collection:
     meta:
       id: req_1f7fff3ca3784c6abe95dc94ae42a8fd
       created: 1772701334401
-      modified: 1772701439579
+      modified: 1773114584856
       isPrivate: false
       description: ""
       sortKey: -1772701334401
@@ -553,7 +553,7 @@ collection:
       mimeType: application/json
       text: |-
         {
-        	"name": "rayat"
+        	"name": "market"
         }
     headers:
       - name: Content-Type
@@ -2699,7 +2699,7 @@ collection:
     meta:
       id: req_cecc1d7853f745268b1912f2a3ea0f5b
       created: 1772952229516
-      modified: 1772952294146
+      modified: 1773114632814
       isPrivate: false
       description: ""
       sortKey: -1772952229516
@@ -2708,7 +2708,7 @@ collection:
       mimeType: application/json
       text: |-
         {
-            "name": "Продажа воды сарван",
+            "name": "Доливка воды сарван",
             "is_active": true
         }
     headers:
@@ -2829,17 +2829,37 @@ collection:
         send: true
         store: true
       rebuildPath: true
-  - url: ""
-    name: New Request
+  - url: http://127.0.0.1:5000/api/admin/discounts
+    name: Discount-add-percentage
     meta:
       id: req_233ebc2dad334461ba4178d8715a177c
       created: 1772953099449
-      modified: 1772953099449
+      modified: 1773114668008
       isPrivate: false
       description: ""
       sortKey: -1772953099449
-    method: GET
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+            "name": "Скидка для VIP клиентов",
+            "discount_type": "percentage",
+            "value": 10.5,
+            "limit_count": 500,
+            "is_combinable": true,
+            "is_active": true,
+            "start_date": "2026-03-10",
+            "end_date": "2026-12-31",
+            "start_time": "00:00",
+            "end_time": "23:59",
+            "service_ids": [1, 2],
+            "city_ids": [1],
+            "price_type_ids": [1,2]
+        }
     headers:
+      - name: Content-Type
+        value: application/json
       - name: User-Agent
         value: insomnia/12.4.0
         description: ""
@@ -2852,15 +2872,92 @@ collection:
         send: true
         store: true
       rebuildPath: true
-  - url: ""
-    name: New Request
+  - url: http://127.0.0.1:5000/api/admin/discounts
+    name: Discount-add-nth order
     meta:
       id: req_5c7a4a1cdc334ace8afd20f5665b8d33
       created: 1772955989537
-      modified: 1772955989537
+      modified: 1773114877031
       isPrivate: false
       description: ""
       sortKey: -1772955989537
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+            "name": "Акция: Каждый 5-й бесплатно",
+            "discount_type": "free_n_th_order",
+            "value": 5,
+            "limit_count": 0,
+            "is_combinable": false,
+            "is_active": true,
+            "start_date": "2025-03-10",
+            "end_date": "2026-12-31",
+            "start_time": "00:00",
+            "end_time": "23:59",
+            "service_ids": [],
+            "city_ids": [],
+            "price_type_ids": []
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/discounts/1
+    name: Discount-update
+    meta:
+      id: req_3326a3444d444527b1ef8f8df3d9ebcc
+      created: 1773114923371
+      modified: 1773114995552
+      isPrivate: false
+      description: ""
+      sortKey: -1773114923371
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+            "start_time": "10:00",
+            "end_time": "20:00",
+            "city_ids": [1, 2],
+            "is_combinable": false
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/discounts?lang=ru
+    name: Discount-get all
+    meta:
+      id: req_c420b76ba0d049648ecc09960fcfdb33
+      created: 1773115024614
+      modified: 1773115084054
+      isPrivate: false
+      description: ""
+      sortKey: -1773115024614
     method: GET
     headers:
       - name: User-Agent
@@ -2880,11 +2977,11 @@ cookieJar:
   meta:
     id: jar_aca031e23bdc4997a34cae3671680f0d
     created: 1772691279748
-    modified: 1772956017723
+    modified: 1773115263346
   cookies:
-    - id: 9c8c46e2-f1fe-48d7-95ca-e947214e1eaf
+    - id: 66eba1a1-48c0-4f28-ada8-4e8c62a5741d
       key: session
-      value: eyJfcGVybWFuZW50Ijp0cnVlLCJyb2xlIjoiYWRtaW4iLCJ1c2VyX2lkIjoxfQ.aa0pcQ.6kR4wsTHgGEdlF2YnnJZkthPuo0
+      value: eyJfcGVybWFuZW50Ijp0cnVlLCJyb2xlIjoiYWRtaW4iLCJ1c2VyX2lkIjoxfQ.aa-Xfw.aVIevEBMOSwhYU4BPInD2uJ-quc
       domain: 127.0.0.1
       path: /
       secure: false
