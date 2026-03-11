@@ -205,7 +205,7 @@ def calculate_order_price():
                     for_creation=False
                 )
                 
-                # Format to float for JSON
+                
                 calc_result['total_order_price'] = float(calc_result['total_order_price'])
                 calc_result['total_discount_amount'] = float(calc_result['total_discount_amount'])
                 calc_result['final_order_price'] = float(calc_result['final_order_price'])
@@ -499,6 +499,7 @@ def monitoring_orders():
                 SELECT 
                     o.id,
                     o.client_id,
+                    o.delivery_date,
                     c.full_name as client_name,
                     cp.phone as client_phone,
                     ca.address_line as client_address,
@@ -576,6 +577,10 @@ def monitoring_orders():
 
             # Форматирование ответа
             for order in orders:
+
+                if order.get('delivery_date'):
+                    order['delivery_date'] = order['delivery_date'].isoformat()
+
                 if order.get('delivery_time') and hasattr(order['delivery_time'], 'seconds'):
                     hours, remainder = divmod(order['delivery_time'].seconds, 3600)
                     minutes, seconds = divmod(remainder, 60)
@@ -784,7 +789,7 @@ def get_couriers_info():
                     u.phone as courier_phone,
                     u.is_active,
                     t.number as transport_number,
-                    COUNT(o.id) as orders_count,
+                    COUNT(DISTINCT o.id) as orders_count, -- FIX: Added DISTINCT here
                     GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') as cities,
                     GROUP_CONCAT(DISTINCT d.name SEPARATOR ', ') as districts
                 FROM courier_profiles cp
@@ -795,7 +800,7 @@ def get_couriers_info():
                 LEFT JOIN districts d ON cd.district_id = d.id
                 LEFT JOIN cities c ON d.city_id = c.id
                 WHERE u.role = 'courier'
-                GROUP BY cp.user_id
+                GROUP BY cp.user_id, u.full_name, u.phone, u.is_active, t.number
                 ORDER BY courier_name
             """
             cursor.execute(sql, (target_date,))
