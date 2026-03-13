@@ -400,3 +400,25 @@ CREATE TABLE credit_payments (
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL
 );
 
+--Добавление колонки состояния продукта в услуги 
+ALTER TABLE service_rules ADD COLUMN product_state_id INT NOT NULL AFTER product_id;
+ALTER TABLE service_rules ADD CONSTRAINT fk_sr_product_state FOREIGN KEY (product_state_id) REFERENCES product_states(id);
+
+CREATE TABLE courier_payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    courier_id INT NOT NULL,
+    order_id INT NOT NULL UNIQUE,
+    payment_type VARCHAR(50) NOT NULL, -- тип оплаты по итогу (cash, card, cash_and_card)
+    cash_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    card_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    is_handed_over BOOLEAN NOT NULL DEFAULT FALSE,
+    handed_over_at DATETIME NULL,
+    accounter_id INT NULL,
+    accounter_note TEXT NULL,
+    
+    FOREIGN KEY (courier_id) REFERENCES courier_profiles(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (accounter_id) REFERENCES users(id) ON DELETE SET NULL
+);

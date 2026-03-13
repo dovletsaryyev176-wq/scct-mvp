@@ -504,6 +504,7 @@ def monitoring_orders():
                     cp.phone as client_phone,
                     ca.address_line as client_address,
                     city.name as city_name,
+                    dist.name as district_name,
                     o.delivery_time_type,
                     o.delivery_time,
                     o.payment_type,
@@ -518,6 +519,7 @@ def monitoring_orders():
                 LEFT JOIN client_phones cp ON o.client_phone_id = cp.id
                 LEFT JOIN client_addresses ca ON o.client_address_id = ca.id
                 LEFT JOIN cities city ON ca.city_id = city.id
+                LEFT JOIN districts dist ON ca.district_id = dist.id
                 LEFT JOIN users u ON o.user_id = u.id
                 LEFT JOIN courier_profiles cprof ON o.courier_id = cprof.user_id
                 LEFT JOIN users cour_u ON cprof.user_id = cour_u.id
