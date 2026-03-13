@@ -736,6 +736,7 @@ def get_daily_payments():
                     cp.card_amount,
                     cp.created_at as payment_date,
                     cp.is_handed_over,
+                    cp.handed_over_at,
                     cp.accounter_note,
                     
                     o.id as order_id,
@@ -768,6 +769,8 @@ def get_daily_payments():
                 d['order_total_amount'] = float(d['order_total_amount']) if d.get('order_total_amount') is not None else 0.0
                 if d['payment_date']:
                     d['payment_date'] = d['payment_date'].isoformat()
+                if d.get('handed_over_at'):
+                    d['handed_over_at'] = d['handed_over_at'].isoformat()
                 if d.get('delivery_time') and hasattr(d['delivery_time'], 'seconds'):
                     hours, remainder = divmod(d['delivery_time'].seconds, 3600)
                     minutes, seconds = divmod(remainder, 60)

@@ -28,6 +28,7 @@ def create_app():
     app.register_blueprint(courier_bp, url_prefix='/api/courier')
     app.register_blueprint(operator_bp, url_prefix='/api/operator')
     app.register_blueprint(accounter_bp, url_prefix='/api/accounter')
+    app.register_blueprint(director_bp, url_prefix='/api/director')
 
     return app
 

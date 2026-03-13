@@ -1,4 +1,6 @@
-from flask import jsonify, request, session
+from flask import jsonify, request, session, send_file
+import io
+import openpyxl
 from datetime import date, datetime
 from decimal import Decimal
 from db import Db
@@ -13,6 +15,8 @@ from . import accounter_bp
 @roles_required('admin', 'operator', 'accounter')
 def get_couriers_debt():
     target_date_str = request.args.get('date')
+    courier_name_filter = request.args.get('courier_name')
+    
     if target_date_str:
         try:
             target_date = datetime.strptime(target_date_str, '%Y-%m-%d').date()
@@ -105,6 +109,11 @@ def get_couriers_debt():
                 couriers_dict[cid]['total_debt'] += (cash_sum + card_sum)
 
             result_list = list(couriers_dict.values())
+            
+            if courier_name_filter:
+                search_term = courier_name_filter.lower()
+                result_list = [c for c in result_list if search_term in c['courier_name'].lower()]
+
             # Сортируем по имени курьера
             result_list.sort(key=lambda x: x['courier_name'])
 
@@ -250,6 +259,345 @@ def accept_courier_handover(courier_id):
 
     except Exception as e:
         conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+# -------------------------------------------------------------
+# 4. Итоговая сумма к сдаче по всем курьерам за день
+# -------------------------------------------------------------
+@accounter_bp.route('/debt/summary', methods=['GET'])
+@roles_required('admin', 'operator', 'accounter')
+def get_all_couriers_debt_summary():
+    target_date_str = request.args.get('date')
+    if target_date_str:
+        try:
+            target_date = datetime.strptime(target_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({'error': 'Неправильный формат даты'}), 400
+    else:
+        target_date = date.today()
+
+    conn = Db.get_connection()
+    try:
+        with conn.cursor() as cursor:
+            sql = """
+                SELECT 
+                    SUM(cash_amount) as total_cash,
+                    SUM(card_amount) as total_card
+                FROM courier_payments
+                WHERE DATE(created_at) = %s AND is_handed_over = FALSE
+            """
+            cursor.execute(sql, (target_date,))
+            res = cursor.fetchone()
+
+            cash = float(res['total_cash']) if res and res['total_cash'] is not None else 0.0
+            card = float(res['total_card']) if res and res['total_card'] is not None else 0.0
+
+            return jsonify({
+                'date': target_date.isoformat(),
+                'total_cash_debt': cash,
+                'total_card_debt': card,
+                'total_debt': cash + card
+            }), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+# -------------------------------------------------------------
+# 5. Экспорт списка долгов курьеров в Excel
+# -------------------------------------------------------------
+@accounter_bp.route('/couriers/debt/export', methods=['GET'])
+@roles_required('admin', 'operator', 'accounter')
+def export_couriers_debt_excel():
+    target_date_str = request.args.get('date')
+    if target_date_str:
+        try:
+            target_date = datetime.strptime(target_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({'error': 'Неправильный формат даты. Ожидается YYYY-MM-DD'}), 400
+    else:
+        target_date = date.today()
+
+    conn = Db.get_connection()
+    try:
+        with conn.cursor() as cursor:
+            # Тот же запрос на статистику, что и в /couriers/debt
+            orders_sql = """
+                SELECT 
+                    o.courier_id, 
+                    u.full_name as courier_name,
+                    COUNT(o.id) as total_orders,
+                    SUM(CASE WHEN o.status = %s THEN 1 ELSE 0 END) as completed_orders
+                FROM orders o
+                JOIN users u ON o.courier_id = u.id
+                WHERE o.delivery_date = %s
+                GROUP BY o.courier_id, u.full_name
+            """
+            cursor.execute(orders_sql, (OrderStatuses.DELIVERED, target_date))
+            orders_stats = cursor.fetchall()
+
+            debt_sql = """
+                SELECT 
+                    courier_id,
+                    payment_type,
+                    SUM(cash_amount) as total_cash,
+                    SUM(card_amount) as total_card
+                FROM courier_payments
+                WHERE DATE(created_at) = %s AND is_handed_over = FALSE
+                GROUP BY courier_id, payment_type
+            """
+            cursor.execute(debt_sql, (target_date,))
+            debt_stats = cursor.fetchall()
+
+            couriers_dict = {}
+            for stat in orders_stats:
+                cid = stat['courier_id']
+                couriers_dict[cid] = {
+                    'courier_name': stat['courier_name'],
+                    'total_orders': int(stat['total_orders']),
+                    'completed_orders': int(stat['completed_orders']),
+                    'total_cash_debt': 0.0,
+                    'total_card_debt': 0.0,
+                    'total_debt': 0.0
+                }
+
+            for d in debt_stats:
+                cid = d['courier_id']
+                if cid not in couriers_dict:
+                    cursor.execute("SELECT full_name FROM users WHERE id = %s", (cid,))
+                    u_row = cursor.fetchone()
+                    couriers_dict[cid] = {
+                        'courier_name': u_row['full_name'] if u_row else f"Курьер ID {cid}",
+                        'total_orders': 0,
+                        'completed_orders': 0,
+                        'total_cash_debt': 0.0,
+                        'total_card_debt': 0.0,
+                        'total_debt': 0.0
+                    }
+
+                cash_sum = float(d['total_cash']) if d['total_cash'] else 0.0
+                card_sum = float(d['total_card']) if d['total_card'] else 0.0
+
+                couriers_dict[cid]['total_cash_debt'] += cash_sum
+                couriers_dict[cid]['total_card_debt'] += card_sum
+                couriers_dict[cid]['total_debt'] += (cash_sum + card_sum)
+
+            result_list = list(couriers_dict.values())
+            result_list.sort(key=lambda x: x['courier_name'])
+
+            # Формирование Excel
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            ws.title = "Долги курьеров"
+
+            headers = ["Курьер", "Всего заказов", "Завершено", "К сдаче (Наличные)", "К сдаче (Карта)", "Итого к сдаче"]
+            ws.append(headers)
+
+            # Настраиваем ширину колонок для красоты
+            column_widths = [30, 15, 15, 20, 20, 20]
+            for i, width in enumerate(column_widths, 1):
+                ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = width
+
+            for c in result_list:
+                ws.append([
+                    c['courier_name'],
+                    c['total_orders'],
+                    c['completed_orders'],
+                    c['total_cash_debt'],
+                    c['total_card_debt'],
+                    c['total_debt']
+                ])
+
+            # Сохраняем в память
+            excel_file = io.BytesIO()
+            wb.save(excel_file)
+            excel_file.seek(0)
+
+            filename = f"couriers_debt_{target_date.strftime('%Y-%m-%d')}.xlsx"
+
+            return send_file(
+                excel_file,
+                mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                as_attachment=True,
+                download_name=filename
+            )
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+# -------------------------------------------------------------
+# 6. Отчет по выданным продуктам (услугам)
+# -------------------------------------------------------------
+@accounter_bp.route('/movements/summary', methods=['GET'])
+@roles_required('admin', 'operator', 'accounter')
+def get_movements_summary():
+    target_date_str = request.args.get('date')
+    if target_date_str:
+        try:
+            target_date = datetime.strptime(target_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({'error': 'Неправильный формат даты. Ожидается YYYY-MM-DD'}), 400
+    else:
+        target_date = date.today()
+
+    conn = Db.get_connection()
+    try:
+        with conn.cursor() as cursor:
+            sql = """
+                SELECT 
+                    s.name as service_name,
+                    pt.name as price_type_name,
+                    o.payment_type,
+                    SUM(oi.quantity) as total_quantity,
+                    SUM(oi.total_price) as total_amount
+                FROM orders o
+                JOIN order_items oi ON o.id = oi.order_id
+                JOIN services s ON oi.service_id = s.id
+                JOIN clients c ON o.client_id = c.id
+                JOIN price_types pt ON c.price_type_id = pt.id
+                WHERE o.delivery_date = %s AND o.status = %s
+                GROUP BY s.id, pt.id, o.payment_type
+            """
+            cursor.execute(sql, (target_date, OrderStatuses.DELIVERED))
+            rows = cursor.fetchall()
+
+            grouped_data = {}
+            for row in rows:
+                key = (row['service_name'], row['price_type_name'])
+                if key not in grouped_data:
+                    grouped_data[key] = {
+                        'service_name': row['service_name'],
+                        'price_type_name': row['price_type_name'],
+                        'total_quantity': 0.0,
+                        'amounts_by_payment': {ptype: 0.0 for ptype in PaymentTypes.CHOICES},
+                        'total_amount': 0.0
+                    }
+                
+                qty = float(row['total_quantity']) if row['total_quantity'] else 0.0
+                amt = float(row['total_amount']) if row['total_amount'] else 0.0
+                
+                grouped_data[key]['total_quantity'] += qty
+                if row['payment_type'] in grouped_data[key]['amounts_by_payment']:
+                    grouped_data[key]['amounts_by_payment'][row['payment_type']] += amt
+                grouped_data[key]['total_amount'] += amt
+
+            result_list = list(grouped_data.values())
+            # Сортировка по услуге и типу цены
+            result_list.sort(key=lambda x: (x['service_name'], x['price_type_name']))
+
+            return jsonify({
+                'date': target_date.isoformat(),
+                'movements': result_list
+            }), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+# -------------------------------------------------------------
+# 7. Экспорт отчета по выданным продуктам в Excel
+# -------------------------------------------------------------
+@accounter_bp.route('/movements/summary/export', methods=['GET'])
+@roles_required('admin', 'operator', 'accounter')
+def export_movements_summary_excel():
+    target_date_str = request.args.get('date')
+    if target_date_str:
+        try:
+            target_date = datetime.strptime(target_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({'error': 'Неправильный формат даты. Ожидается YYYY-MM-DD'}), 400
+    else:
+        target_date = date.today()
+
+    conn = Db.get_connection()
+    try:
+        with conn.cursor() as cursor:
+            sql = """
+                SELECT 
+                    s.name as service_name,
+                    pt.name as price_type_name,
+                    o.payment_type,
+                    SUM(oi.quantity) as total_quantity,
+                    SUM(oi.total_price) as total_amount
+                FROM orders o
+                JOIN order_items oi ON o.id = oi.order_id
+                JOIN services s ON oi.service_id = s.id
+                JOIN clients c ON o.client_id = c.id
+                JOIN price_types pt ON c.price_type_id = pt.id
+                WHERE o.delivery_date = %s AND o.status = %s
+                GROUP BY s.id, pt.id, o.payment_type
+            """
+            cursor.execute(sql, (target_date, OrderStatuses.DELIVERED))
+            rows = cursor.fetchall()
+
+            grouped_data = {}
+            for row in rows:
+                key = (row['service_name'], row['price_type_name'])
+                if key not in grouped_data:
+                    grouped_data[key] = {
+                        'service_name': row['service_name'],
+                        'price_type_name': row['price_type_name'],
+                        'total_quantity': 0.0,
+                        'amounts_by_payment': {ptype: 0.0 for ptype in PaymentTypes.CHOICES},
+                        'total_amount': 0.0
+                    }
+                
+                qty = float(row['total_quantity']) if row['total_quantity'] else 0.0
+                amt = float(row['total_amount']) if row['total_amount'] else 0.0
+                
+                grouped_data[key]['total_quantity'] += qty
+                if row['payment_type'] in grouped_data[key]['amounts_by_payment']:
+                    grouped_data[key]['amounts_by_payment'][row['payment_type']] += amt
+                grouped_data[key]['total_amount'] += amt
+
+            result_list = list(grouped_data.values())
+            result_list.sort(key=lambda x: (x['service_name'], x['price_type_name']))
+
+            # Формирование Excel
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            ws.title = "Выданные продукты"
+
+            payment_labels = [PaymentTypes.LABELS[pt]['ru'] for pt in PaymentTypes.CHOICES]
+            headers = ["Вид услуги", "Тип цены", "Общее кол-во"] + [f"Сумма ({lbl})" for lbl in payment_labels] + ["Итого Сумма"]
+            ws.append(headers)
+
+            column_widths = [30, 20, 15] + [20] * len(PaymentTypes.CHOICES) + [20]
+            for i, width in enumerate(column_widths, 1):
+                ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = width
+
+            for r in result_list:
+                row_data = [
+                    r['service_name'],
+                    r['price_type_name'],
+                    r['total_quantity']
+                ]
+                for pt in PaymentTypes.CHOICES:
+                    row_data.append(r['amounts_by_payment'][pt])
+                row_data.append(r['total_amount'])
+                
+                ws.append(row_data)
+
+            excel_file = io.BytesIO()
+            wb.save(excel_file)
+            excel_file.seek(0)
+
+            filename = f"movements_summary_{target_date.strftime('%Y-%m-%d')}.xlsx"
+
+            return send_file(
+                excel_file,
+                mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                as_attachment=True,
+                download_name=filename
+            )
+
+    except Exception as e:
         return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
