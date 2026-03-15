@@ -448,20 +448,22 @@ def get_movements_summary():
     conn = Db.get_connection()
     try:
         with conn.cursor() as cursor:
+            # Учитываем скидку: сумма по позициям = доля позиции в заказе * итог заказа (o.total_amount)
             sql = """
                 SELECT 
                     s.name as service_name,
                     pt.name as price_type_name,
                     o.payment_type,
-                    SUM(oi.quantity) as total_quantity,
-                    SUM(oi.total_price) as total_amount
+                    oi.quantity,
+                    oi.total_price,
+                    o.total_amount as order_total,
+                    SUM(oi.total_price) OVER (PARTITION BY o.id) as order_items_sum
                 FROM orders o
                 JOIN order_items oi ON o.id = oi.order_id
                 JOIN services s ON oi.service_id = s.id
                 JOIN clients c ON o.client_id = c.id
                 JOIN price_types pt ON c.price_type_id = pt.id
                 WHERE o.delivery_date = %s AND o.status = %s
-                GROUP BY s.id, pt.id, o.payment_type
             """
             cursor.execute(sql, (target_date, OrderStatuses.DELIVERED))
             rows = cursor.fetchall()
@@ -477,14 +479,18 @@ def get_movements_summary():
                         'amounts_by_payment': {ptype: 0.0 for ptype in PaymentTypes.CHOICES},
                         'total_amount': 0.0
                     }
-                
-                qty = float(row['total_quantity']) if row['total_quantity'] else 0.0
-                amt = float(row['total_amount']) if row['total_amount'] else 0.0
-                
+
+                order_total = float(row['order_total']) if row['order_total'] else 0.0
+                items_sum = float(row['order_items_sum']) if row['order_items_sum'] else 0.0
+                item_price = float(row['total_price']) if row['total_price'] else 0.0
+                ratio = (order_total / items_sum) if items_sum else 0.0
+                amt = item_price * ratio
+                qty = float(row['quantity']) if row['quantity'] else 0.0
+
                 grouped_data[key]['total_quantity'] += qty
+                grouped_data[key]['total_amount'] += amt
                 if row['payment_type'] in grouped_data[key]['amounts_by_payment']:
                     grouped_data[key]['amounts_by_payment'][row['payment_type']] += amt
-                grouped_data[key]['total_amount'] += amt
 
             result_list = list(grouped_data.values())
             # Сортировка по услуге и типу цены
@@ -523,15 +529,16 @@ def export_movements_summary_excel():
                     s.name as service_name,
                     pt.name as price_type_name,
                     o.payment_type,
-                    SUM(oi.quantity) as total_quantity,
-                    SUM(oi.total_price) as total_amount
+                    oi.quantity,
+                    oi.total_price,
+                    o.total_amount as order_total,
+                    SUM(oi.total_price) OVER (PARTITION BY o.id) as order_items_sum
                 FROM orders o
                 JOIN order_items oi ON o.id = oi.order_id
                 JOIN services s ON oi.service_id = s.id
                 JOIN clients c ON o.client_id = c.id
                 JOIN price_types pt ON c.price_type_id = pt.id
                 WHERE o.delivery_date = %s AND o.status = %s
-                GROUP BY s.id, pt.id, o.payment_type
             """
             cursor.execute(sql, (target_date, OrderStatuses.DELIVERED))
             rows = cursor.fetchall()
@@ -547,17 +554,28 @@ def export_movements_summary_excel():
                         'amounts_by_payment': {ptype: 0.0 for ptype in PaymentTypes.CHOICES},
                         'total_amount': 0.0
                     }
-                
-                qty = float(row['total_quantity']) if row['total_quantity'] else 0.0
-                amt = float(row['total_amount']) if row['total_amount'] else 0.0
-                
+
+                order_total = float(row['order_total']) if row['order_total'] else 0.0
+                items_sum = float(row['order_items_sum']) if row['order_items_sum'] else 0.0
+                item_price = float(row['total_price']) if row['total_price'] else 0.0
+                ratio = (order_total / items_sum) if items_sum else 0.0
+                amt = item_price * ratio
+                qty = float(row['quantity']) if row['quantity'] else 0.0
+
                 grouped_data[key]['total_quantity'] += qty
+                grouped_data[key]['total_amount'] += amt
                 if row['payment_type'] in grouped_data[key]['amounts_by_payment']:
                     grouped_data[key]['amounts_by_payment'][row['payment_type']] += amt
-                grouped_data[key]['total_amount'] += amt
 
             result_list = list(grouped_data.values())
             result_list.sort(key=lambda x: (x['service_name'], x['price_type_name']))
+
+            # format=json — вернуть те же данные JSON для проверки в Insomnia/Postman
+            if request.args.get('format') == 'json':
+                return jsonify({
+                    'date': target_date.isoformat(),
+                    'movements': result_list
+                }), 200
 
             # Формирование Excel
             wb = openpyxl.Workbook()

@@ -135,7 +135,7 @@ collection:
     meta:
       id: req_0c82a67b294842008f3009960f6cc796
       created: 1772691284655
-      modified: 1773550526774
+      modified: 1773551811034
       isPrivate: false
       description: ""
       sortKey: -1772691284655
@@ -144,7 +144,7 @@ collection:
       mimeType: application/json
       text: |-
         {
-        	"username": "azat",
+        	"username": "admin",
         	"password": "12345"
         }
     headers:
@@ -3347,12 +3347,12 @@ collection:
         send: true
         store: true
       rebuildPath: true
-  - url: http://127.0.0.1:5000/api/accounter/couriers/debt?date=2026-03-12
-    name: Accounter-couriers-debt
+  - url: http://127.0.0.1:5000/api/accounter/couriers/debt?date=2026-03-15
+    name: Accounter-Список курьеров с долгами (ожидающих кассы на дату)
     meta:
       id: req_ee14a7407585418a8d018f3952ea77d5
       created: 1773549087452
-      modified: 1773549522064
+      modified: 1773552204395
       isPrivate: false
       description: ""
       sortKey: -1773549087452
@@ -3534,16 +3534,117 @@ collection:
         send: true
         store: true
       rebuildPath: true
+  - url: http://127.0.0.1:5000/api/accounter/couriers/2/payments?date=2026-03-15
+    name: Accounter-Детализация платежей и заказов конкретного курьера за день
+    meta:
+      id: req_3b1cba8347a94d7ebccbe55ebc150d59
+      created: 1773551875087
+      modified: 1773552234262
+      isPrivate: false
+      description: ""
+      sortKey: -1773551875087
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/accounter/couriers/2/handover
+    name: Accounter-Принять кассу (Передача денег бухгалтеру)
+    meta:
+      id: req_5d93f71865ba4a1a9408db6c4b8bb284
+      created: 1773552137739
+      modified: 1773552395778
+      isPrivate: false
+      description: ""
+      sortKey: -1773552137739
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "date": "2026-03-15",
+          "note": "Прием денег за смену. Задержался из-за пробок."
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/accounter/debt/summary
+    name: Accounter-Итоговая сумма к сдаче по всем курьерам за день
+    meta:
+      id: req_2de3d45029934fd9b46d91b3c7399686
+      created: 1773552410980
+      modified: 1773552485366
+      isPrivate: false
+      description: ""
+      sortKey: -1773552410980
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/accounter/movements/summary
+    name: Accounter-Отчет по выданным услугам
+    meta:
+      id: req_8429f47fdebc4a1c833f1f3a1bc81b84
+      created: 1773552558965
+      modified: 1773553591090
+      isPrivate: false
+      description: ""
+      sortKey: -1773552558965
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
 cookieJar:
   name: Default Jar
   meta:
     id: jar_8614f9c25a764f9cb34109e8aaca093a
     created: 1772691279748
-    modified: 1773551601091
+    modified: 1773553672304
   cookies:
-    - id: 32252b65-df95-450f-93c4-9b6793a3a4b8
+    - id: 7fca2655-b8c3-4e4f-b67b-16c520da5db3
       key: session
-      value: eyJfcGVybWFuZW50Ijp0cnVlLCJyb2xlIjoiY291cmllciIsInVzZXJfaWQiOjJ9.abY_8Q.WEAT85mil0kWRnz_vynvuHKGcig
+      value: eyJfcGVybWFuZW50Ijp0cnVlLCJyb2xlIjoiYWRtaW4iLCJ1c2VyX2lkIjoxfQ.abZICA.C0sDpVPSkqKz4BLDXfYQAcTIub8
       domain: 127.0.0.1
       path: /
       secure: false
