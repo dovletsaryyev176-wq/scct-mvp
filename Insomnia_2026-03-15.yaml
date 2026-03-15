@@ -3635,16 +3635,177 @@ collection:
         send: true
         store: true
       rebuildPath: true
+  - url: http://127.0.0.1:5000/api/director/clients/by-price-type
+    name: Director-Суммарное количество клиентов с распределением по типам цен
+    meta:
+      id: req_02719108f45f43fdb2a536e4ac979349
+      created: 1773555882579
+      modified: 1773556005136
+      isPrivate: false
+      description: ""
+      sortKey: -1773555882579
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/director/transports/blocked
+    name: Director-Суммарное количество заблокированного транспорта
+    meta:
+      id: req_50535d4646a54200874064382ca99b52
+      created: 1773555989488
+      modified: 1773556051299
+      isPrivate: false
+      description: ""
+      sortKey: -1773555989488
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/director/clients/by-district
+    name: Director-Суммарное количество клиентов по районам городов
+    meta:
+      id: req_eae730f906ec4f0085ccf58e33adb9e9
+      created: 1773556058248
+      modified: 1773556107624
+      isPrivate: false
+      description: ""
+      sortKey: -1773556058248
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/director/money/accepted
+    name: Director-Информация о принятых деньгах бухгалтером
+    meta:
+      id: req_68a4dcb606804abb90612e8a34f94cb8
+      created: 1773556110233
+      modified: 1773556169766
+      isPrivate: false
+      description: ""
+      sortKey: -1773556110233
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/director/orders/by-status
+    name: Director-Суммарное количество заказов с распределением по статусу
+    meta:
+      id: req_807895dc927042bbb5c768d0538e40fa
+      created: 1773556178847
+      modified: 1773556228582
+      isPrivate: false
+      description: ""
+      sortKey: -1773556178847
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/director/money/monthly-income-yearly
+    name: Director-Суммарный доход за каждый месяц текущего года
+    meta:
+      id: req_6a5966ea853540e49146c1df4e5b412a
+      created: 1773556241681
+      modified: 1773556300207
+      isPrivate: false
+      description: ""
+      sortKey: -1773556241681
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/director/money/monthly-income
+    name: Director-Суммарный доход за текущий месяц (с фильтром по месяцу и году)
+    meta:
+      id: req_b81ba6f79a0d45ebb7567ea628fda349
+      created: 1773556306459
+      modified: 1773556369403
+      isPrivate: false
+      description: ""
+      sortKey: -1773556306459
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
 cookieJar:
   name: Default Jar
   meta:
     id: jar_8614f9c25a764f9cb34109e8aaca093a
     created: 1772691279748
-    modified: 1773553672304
+    modified: 1773556370347
   cookies:
-    - id: 7fca2655-b8c3-4e4f-b67b-16c520da5db3
+    - id: e5f72226-a10c-4e88-bae1-3fae162a4fb3
       key: session
-      value: eyJfcGVybWFuZW50Ijp0cnVlLCJyb2xlIjoiYWRtaW4iLCJ1c2VyX2lkIjoxfQ.abZICA.C0sDpVPSkqKz4BLDXfYQAcTIub8
+      value: eyJfcGVybWFuZW50Ijp0cnVlLCJyb2xlIjoiYWRtaW4iLCJ1c2VyX2lkIjoxfQ.abZSkg.VLUsK92PKKf72YI7AeEcHjN0ogI
       domain: 127.0.0.1
       path: /
       secure: false
