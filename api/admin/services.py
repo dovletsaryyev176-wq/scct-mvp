@@ -143,9 +143,10 @@ def get_services():
 
                 
                 cursor.execute("""
-                    SELECT sr.id, sr.product_id, p.name as product_name, sr.service_type, sr.quantity
+                    SELECT sr.id, sr.product_id, p.name as product_name, sr.product_state_id, ps.name as product_state_name, sr.service_type, sr.quantity
                     FROM service_rules sr
                     LEFT JOIN products p ON sr.product_id = p.id
+                    LEFT JOIN product_states ps ON sr.product_state_id = ps.id
                     WHERE sr.service_id = %s
                 """, (service['id'],))
                 rules = cursor.fetchall()
@@ -163,8 +164,12 @@ def get_services():
 def add_service_rule(service_id):
     data = request.get_json()
     product_id = data.get('product_id')
+    product_state_id = data.get('product_state_id')
     service_type = data.get('service_type')
     quantity = data.get('quantity')
+
+    if product_state_id is None:
+        return jsonify({"error": "product_state_id обязателен"}), 400
 
     conn = Db.get_connection()
     try:
@@ -176,10 +181,13 @@ def add_service_rule(service_id):
             cursor.execute("SELECT id FROM products WHERE id = %s", (product_id,))
             if not cursor.fetchone(): return jsonify({"error": "Продукт не найден"}), 404
 
+            cursor.execute("SELECT id FROM product_states WHERE id = %s", (product_state_id,))
+            if not cursor.fetchone(): return jsonify({"error": "Состояние продукта не найдено"}), 404
+
             cursor.execute("""
-                INSERT INTO service_rules (service_id, product_id, service_type, quantity)
-                VALUES (%s, %s, %s, %s)
-            """, (service_id, product_id, service_type, quantity))
+                INSERT INTO service_rules (service_id, product_id, product_state_id, service_type, quantity)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (service_id, product_id, product_state_id, service_type, quantity))
             rule_id = cursor.lastrowid
             conn.commit()
             

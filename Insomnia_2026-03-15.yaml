@@ -2,15 +2,15 @@ type: collection.insomnia.rest/5.0
 schema_version: "5.1"
 name: Admin
 meta:
-  id: wrk_b693e7a12bdf4a9ca8ce80edb3c25c48
-  created: 1772781303340
-  modified: 1772781303340
+  id: wrk_c67fae813bb7412f82cee5870c204678
+  created: 1773547085008
+  modified: 1773547085008
   description: ""
 collection:
   - url: http://127.0.0.1:5000/api/admin/cities
     name: City-get all
     meta:
-      id: req_09013166ec2b4f16ba65c1c64adb1af4
+      id: req_b151b3392f12417e9aafc0e22a4339db
       created: 1772687100340
       modified: 1772715909567
       isPrivate: false
@@ -33,7 +33,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/cities/1
     name: City-update
     meta:
-      id: req_6f8043f3574044439effd4a6535ef190
+      id: req_d938ed292d944bc0b6e80aa4201fa7db
       created: 1772687642019
       modified: 1772687868923
       isPrivate: false
@@ -64,7 +64,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/cities/1/block
     name: City-block
     meta:
-      id: req_1d7d0dfc14ad46d181acd56aa429ba28
+      id: req_dc0ae52f83804dd38de3360e59d235b6
       created: 1772687673571
       modified: 1772687761851
       isPrivate: false
@@ -87,7 +87,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/cities/1/unblock
     name: City-unblock
     meta:
-      id: req_ced5ed0ba6be42048f50051d364ca117
+      id: req_af05d631f94d427d9d42db44333f470f
       created: 1772687710035
       modified: 1772687759966
       isPrivate: false
@@ -110,7 +110,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/cities/full-list
     name: City-full list
     meta:
-      id: req_9987b3a5e9ea47fab4a658c62485f765
+      id: req_f7fba379a4e7477f8ff45e8795dcbbba
       created: 1772687872041
       modified: 1772687921429
       isPrivate: false
@@ -133,9 +133,9 @@ collection:
   - url: http://127.0.0.1:5000/api/auth/login
     name: Login
     meta:
-      id: req_a03b048e008b4eda9ed834afc369d797
+      id: req_0c82a67b294842008f3009960f6cc796
       created: 1772691284655
-      modified: 1773245096726
+      modified: 1773550526774
       isPrivate: false
       description: ""
       sortKey: -1772691284655
@@ -165,7 +165,7 @@ collection:
   - url: http://127.0.0.1:5000/api/auth/me
     name: Me
     meta:
-      id: req_b56ad55b1a9d402c8d1ac5b3e4d4877a
+      id: req_ecfe00a19fd8422a93e3a0fe30f8889b
       created: 1772691475099
       modified: 1772691499602
       isPrivate: false
@@ -188,7 +188,7 @@ collection:
   - url: http://127.0.0.1:5000/api/auth/logout
     name: Logout
     meta:
-      id: req_eff7cc1b33e04cfeb4c9ffddb6c27efe
+      id: req_32377dd3da87411385eb1e757c0bcb20
       created: 1772691503311
       modified: 1772691545638
       isPrivate: false
@@ -211,7 +211,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/cities
     name: City-add
     meta:
-      id: req_96a312988a394cd5af93376b08f19d55
+      id: req_ce02b349c35c478f827a9e7864b0d44f
       created: 1772691549783
       modified: 1773222194748
       isPrivate: false
@@ -242,7 +242,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/users
     name: Users-get all
     meta:
-      id: req_9955141c2cf14d3e97f5865901f5e920
+      id: req_7ad98099baad409eadd1490a0ec45d66
       created: 1772698734004
       modified: 1772861409445
       isPrivate: false
@@ -265,7 +265,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/users
     name: Users-add
     meta:
-      id: req_b7d188bc38e94c728f184d016ca3fefa
+      id: req_c82d9ecdfaa94d779945371d76f01884
       created: 1772698785269
       modified: 1773222231513
       isPrivate: false
@@ -300,7 +300,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/users/3
     name: Users-update
     meta:
-      id: req_c5ae38444545486ebe4bfdad8561d093
+      id: req_f1917a1a29cd41b7a308290534c2d637
       created: 1772699330712
       modified: 1772700853698
       isPrivate: false
@@ -335,7 +335,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/users/3/block
     name: Users-block
     meta:
-      id: req_d4293b2fe29745ac9716f75e57463807
+      id: req_1f18f6d6d8e24311a4058b1de3fd379f
       created: 1772700188546
       modified: 1772700353089
       isPrivate: false
@@ -358,7 +358,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/users/3/unblock
     name: Users-unblock
     meta:
-      id: req_f8efa015f0e54ae595e2dad00ac922c2
+      id: req_e75af6044b3544faadd0798fb8554020
       created: 1772700198621
       modified: 1772700399915
       isPrivate: false
@@ -381,7 +381,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/delivery-times
     name: Types-delivery times
     meta:
-      id: req_740800b361614ce9a52a0a771ef597d5
+      id: req_360e910ba6c64e99a71ad687cbb3d9eb
       created: 1772700896973
       modified: 1772700969015
       isPrivate: false
@@ -404,7 +404,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/order-statuses
     name: Types-order statuses
     meta:
-      id: req_57f3c630cb04409cbd827ce4a92b94fb
+      id: req_0906d2a46a8f4991b9290041d9bef080
       created: 1772700971310
       modified: 1772701060912
       isPrivate: false
@@ -427,7 +427,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/payment-types
     name: Types-payment types
     meta:
-      id: req_12485e7068484440a988fb00ecf02604
+      id: req_e4dba81f142e4328b0a9dd0bde1ace1a
       created: 1772701014763
       modified: 1772701119873
       isPrivate: false
@@ -450,7 +450,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/service-types
     name: Types-service types
     meta:
-      id: req_fa81150aae8b4260bb74a60e3fbc4b1c
+      id: req_81db9dbea7a7442fbffc1b9e66ea2555
       created: 1772701046832
       modified: 1772701115971
       isPrivate: false
@@ -473,7 +473,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/transaction-types
     name: Types-transaction types
     meta:
-      id: req_42f077b1a1b2489783f7e6e4a69d24a3
+      id: req_047c23d5548946e3813fb2b46564a9b0
       created: 1772701122327
       modified: 1772701182619
       isPrivate: false
@@ -496,7 +496,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/discount-types
     name: Types-discount types
     meta:
-      id: req_94b7e0f18096435eaa6e36a336175fef
+      id: req_fa8b0cf9753b41b1acf54adf7299e51e
       created: 1772701188418
       modified: 1772701233229
       isPrivate: false
@@ -519,7 +519,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/price-types
     name: Price types-get all
     meta:
-      id: req_ce8ee6fc58824769935231ab31ce4320
+      id: req_25854fba1def4a0db2694148a2e104d2
       created: 1772701235967
       modified: 1772701561237
       isPrivate: false
@@ -542,7 +542,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/price-types
     name: Price types-insert
     meta:
-      id: req_1f7fff3ca3784c6abe95dc94ae42a8fd
+      id: req_406af08dadfc43718d81cb2068f42e7d
       created: 1772701334401
       modified: 1773222288776
       isPrivate: false
@@ -573,7 +573,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/price-types/1
     name: Price types-update
     meta:
-      id: req_3f77a2c00dc74719b3ec2edd68d3416f
+      id: req_cd4ec54684424dfaa239ca736cc6cf10
       created: 1772701459910
       modified: 1772701572742
       isPrivate: false
@@ -604,7 +604,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/price-types/1/block
     name: Price types-block
     meta:
-      id: req_179fce62590e416e86bd013ea6d711c3
+      id: req_0ae9ee7ce14f4a5084339c90efe404b3
       created: 1772701576331
       modified: 1772701610021
       isPrivate: false
@@ -627,7 +627,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/price-types/1/unblock
     name: Price types-unblock
     meta:
-      id: req_2b55ede9e52248629d5c6e8741fd7aa4
+      id: req_d369c520d3c54fa5bdd0161603928ff5
       created: 1772701598880
       modified: 1772701639099
       isPrivate: false
@@ -650,7 +650,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/transports
     name: Transport-add
     meta:
-      id: req_2baa7d676ff84d309169f7fb1203dd36
+      id: req_3f734972cd204881999af026c4d7146e
       created: 1772701643412
       modified: 1772702137324
       isPrivate: false
@@ -682,7 +682,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/transports
     name: Transport-get all
     meta:
-      id: req_2d18eca08b8a4626b1f9e4961ebda794
+      id: req_839834e30b8b4a5b8dc714c40bd4e001
       created: 1772702110547
       modified: 1772702146222
       isPrivate: false
@@ -705,7 +705,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/transports/1
     name: Transport-update
     meta:
-      id: req_18050b255e2147ca93a3ba7e46faf177
+      id: req_ce7a38cd47af48e093a63eba959b0c6b
       created: 1772702151765
       modified: 1772702236661
       isPrivate: false
@@ -737,7 +737,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/transports/1/block
     name: Transport-block
     meta:
-      id: req_dcdf575b6fbe43d28e61bd8f6ba6515b
+      id: req_fa3879002ae94a868f72453ec35ff99e
       created: 1772702240368
       modified: 1772702285852
       isPrivate: false
@@ -760,7 +760,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/transports/1/unblock
     name: Transport-unblock
     meta:
-      id: req_f85bcf58f30b4995b64117b0f6292e33
+      id: req_8f22e8470179487baaa4eab1b080213b
       created: 1772702264602
       modified: 1772702293660
       isPrivate: false
@@ -783,7 +783,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/brands
     name: Brand-add
     meta:
-      id: req_53f080c8a44e436aa9185909c01f8280
+      id: req_cc8150615e144966a1f4d5578b0fadaa
       created: 1772702296863
       modified: 1772715644138
       isPrivate: false
@@ -814,7 +814,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/brands
     name: Brand-get all
     meta:
-      id: req_f792107ab90644f9a00db8779f9ecd7d
+      id: req_8a1598d5d7354dd78ee5e64eb534a0db
       created: 1772715628060
       modified: 1772715651359
       isPrivate: false
@@ -837,7 +837,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/brands/1/block
     name: Brand-block
     meta:
-      id: req_3466b018f6724470af1a83807815f09b
+      id: req_7cacd39a9e5147bf80f54c00967d4612
       created: 1772715657793
       modified: 1772715716100
       isPrivate: false
@@ -860,7 +860,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/brands/1/unblock
     name: Brand-unblock
     meta:
-      id: req_d8cd6452a8b3499d85d06cf3b885029c
+      id: req_46da4d736b27494a9cbe5054667e0208
       created: 1772715685229
       modified: 1772715724017
       isPrivate: false
@@ -883,7 +883,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/brands/1
     name: Brand-update
     meta:
-      id: req_a3855073233241489826e072ddad10b1
+      id: req_105a6f46e1924bb2bb0b059819780cee
       created: 1772715727839
       modified: 1772715769964
       isPrivate: false
@@ -914,7 +914,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/districts
     name: Districts-get all
     meta:
-      id: req_c3574ee2b75d4506ba67792e238de534
+      id: req_1b1efab405a84c758997001a10c3275d
       created: 1772715776841
       modified: 1772715978364
       isPrivate: false
@@ -937,7 +937,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/districts
     name: Districts-add
     meta:
-      id: req_52be1dba3edf4d43a50985a09acc17b8
+      id: req_0f497f521b144a4b84544f44669d100d
       created: 1772715891893
       modified: 1773222418945
       isPrivate: false
@@ -969,7 +969,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/districts/1/block
     name: District-block
     meta:
-      id: req_701ef97ad5e14e54a63b17827d598738
+      id: req_a589b9245ee1415186b384f3d761ec16
       created: 1772716002419
       modified: 1772716025172
       isPrivate: false
@@ -992,7 +992,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/districts/1/unblock
     name: District-unblock
     meta:
-      id: req_e4cb5c0496ac48159f5e0f525c6097d0
+      id: req_6069d4a587584eeb9f23915d5fa1e9b9
       created: 1772716031561
       modified: 1772716054779
       isPrivate: false
@@ -1015,7 +1015,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/districts/1
     name: District-put
     meta:
-      id: req_ba4527f881cd49b4a81a9f0382e079b6
+      id: req_13ae918d4f67464ca71ef88f7db4a0de
       created: 1772716067868
       modified: 1772716108513
       isPrivate: false
@@ -1047,7 +1047,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/counterparties
     name: Counterparties-add
     meta:
-      id: req_f2a1c2fa3bfa4cc388e895fe0f406a04
+      id: req_a3fcefc548c44c7caf4a3233250400db
       created: 1772716118331
       modified: 1773222459991
       isPrivate: false
@@ -1086,7 +1086,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/counterparties
     name: Counterparties-get all
     meta:
-      id: req_1106b1906636491781cf472ceae0ec0b
+      id: req_eb149afade424874b3d45cfcf7f198c2
       created: 1772716579497
       modified: 1772717079510
       isPrivate: false
@@ -1109,7 +1109,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/counterparties/1/block
     name: Counterparties-block
     meta:
-      id: req_44e80d99064e4a14ac572d7c3eae41d1
+      id: req_b96615aac2884f2fa3cbb350609b3423
       created: 1772717103982
       modified: 1772717180483
       isPrivate: false
@@ -1132,7 +1132,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/counterparties/2/unblock
     name: Counterparties-unblock
     meta:
-      id: req_1444ce0e19b2436cae51cffc9000c403
+      id: req_e3824584cf79441888b26f28756e352e
       created: 1772717147179
       modified: 1772717198515
       isPrivate: false
@@ -1155,7 +1155,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/counterparties/1
     name: Counterparties-update
     meta:
-      id: req_74554296257447349b853e20cd301865
+      id: req_ad5c9bcf19a44e6e92b676f13417b8f4
       created: 1772717201221
       modified: 1772721930536
       isPrivate: false
@@ -1194,7 +1194,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/product-types
     name: Product types-get
     meta:
-      id: req_e372418f0eb94826bfecd49e678f66e0
+      id: req_381410323352415d823385b9487a59b1
       created: 1772721952270
       modified: 1772724495263
       isPrivate: false
@@ -1217,7 +1217,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/product-types
     name: Product types-add
     meta:
-      id: req_46ecbd1ac1e449dda8431b32aa54b42f
+      id: req_f43bd2179a1b45d99fb7235a9391cfdb
       created: 1772724501001
       modified: 1772724636765
       isPrivate: false
@@ -1248,7 +1248,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/product-types/1/block
     name: Product types-block
     meta:
-      id: req_d44368d67fa249c7a24e80d96a9fa22a
+      id: req_c3d66444edf740e2b047191751b41fcc
       created: 1772724624878
       modified: 1772724692450
       isPrivate: false
@@ -1271,7 +1271,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/product-types/1/unblock
     name: Product types-unblock
     meta:
-      id: req_404ad489a1a049f5ba853ccef041991f
+      id: req_c6a79821210946c9af9ecc4237e5fe9a
       created: 1772724656255
       modified: 1772724706187
       isPrivate: false
@@ -1294,7 +1294,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/product-types/1
     name: Product types-update
     meta:
-      id: req_e56cd7d5e1d24e62ac77f5554c6197e0
+      id: req_da862a08ff9f4e0281c252d84f23e8b9
       created: 1772724714787
       modified: 1772724756541
       isPrivate: false
@@ -1325,7 +1325,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/product-states
     name: Product states-get all
     meta:
-      id: req_c445c1881267427589e028f3f267f605
+      id: req_263493a808db46aab45da8392b09e105
       created: 1772724758953
       modified: 1772773525248
       isPrivate: false
@@ -1348,7 +1348,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/product-states
     name: Product states-add
     meta:
-      id: req_67babbeaeb56479f967e5f451e4610d9
+      id: req_978acb95bb5b435daf75751333cc1951
       created: 1772773495372
       modified: 1773222546458
       isPrivate: false
@@ -1379,7 +1379,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/product-states/1
     name: Product states-update
     meta:
-      id: req_c9e72423d52f442d85a54a8cc32f861d
+      id: req_eb625b65954243a8b2e04ec3131b8270
       created: 1772773539814
       modified: 1772773577349
       isPrivate: false
@@ -1410,7 +1410,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/product-states/1/block
     name: Product states-block
     meta:
-      id: req_99667c5c688a4ab4915dc167467d97e7
+      id: req_ced9f7bd812e4a509a75b6e1187c6bb8
       created: 1772773579928
       modified: 1772773622712
       isPrivate: false
@@ -1433,7 +1433,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/product-states/1/unblock
     name: Product states-unblock
     meta:
-      id: req_50d86c6b25344e63b3afd19fa7402648
+      id: req_c12438036a934791ae299c2f410d09bb
       created: 1772773600986
       modified: 1772773631489
       isPrivate: false
@@ -1456,7 +1456,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/products
     name: Product-get all
     meta:
-      id: req_3c61a41911f94a758e3136438e5a81d5
+      id: req_9f4fc22e5c4e4b3eaa47833c5cd000ea
       created: 1772773639850
       modified: 1772784039373
       isPrivate: false
@@ -1479,7 +1479,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/products
     name: Product-add
     meta:
-      id: req_3baad65925984725b900e5369a48b43d
+      id: req_8949b9853bc74b61908002f61faafed5
       created: 1772774253441
       modified: 1773222633526
       isPrivate: false
@@ -1514,7 +1514,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/products/1/block
     name: Product-block
     meta:
-      id: req_bc4c090552544d649f6f927c4cbb51c9
+      id: req_3450d43adda24b9b9c41430debc5c28e
       created: 1772774307196
       modified: 1772774350231
       isPrivate: false
@@ -1537,7 +1537,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/products/1/unblock
     name: Product-unblock
     meta:
-      id: req_31e2ed92a5ab4f959fb5a29604228f92
+      id: req_06f1bca3a3fa4c46b243a5600be4f2c6
       created: 1772774328813
       modified: 1772774356845
       isPrivate: false
@@ -1560,7 +1560,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/products/1
     name: Product-update
     meta:
-      id: req_c20569a80f1244f5a9aa875b1008a499
+      id: req_61540d1ce15e4b88ad4411b1f9dc2553
       created: 1772774359688
       modified: 1772774451443
       isPrivate: false
@@ -1595,7 +1595,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/warehouses
     name: Warehouses-add
     meta:
-      id: req_ed9ccdd090224792b8d521972a9b3f61
+      id: req_4eb5ee204b484806a505185727de904f
       created: 1772774457135
       modified: 1772782177957
       isPrivate: false
@@ -1634,7 +1634,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/warehouses
     name: Warehouses-get all
     meta:
-      id: req_6d951d6e04fe41fe987ff1a8dae0d44c
+      id: req_03dffd5fa9e34e75bea4f0f84bf1e577
       created: 1772782021559
       modified: 1772782200098
       isPrivate: false
@@ -1657,7 +1657,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/warehouses/1/block
     name: Warehouses-block
     meta:
-      id: req_cdf43570e2af439b9362e847f3b71173
+      id: req_f08779ebfb7c40ef9afa4ef6191c1b50
       created: 1772782205528
       modified: 1772782261787
       isPrivate: false
@@ -1680,7 +1680,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/warehouses/1/unblock
     name: Warehouses-unblock
     meta:
-      id: req_570739c1a7d541bc85831624ebfba724
+      id: req_41ba7ba7254c4600af36c201dd6c90a7
       created: 1772782238625
       modified: 1772782269289
       isPrivate: false
@@ -1703,7 +1703,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/warehouses/1
     name: Warehouse-update
     meta:
-      id: req_db6ac7b23c6942eabf705572695ff550
+      id: req_70db52d1bb5144c6afa860e1176af292
       created: 1772782314283
       modified: 1772782519082
       isPrivate: false
@@ -1740,7 +1740,7 @@ collection:
   - url: 127.0.0.1:5000/api/warehouse/locations/counterparties
     name: Locations-get counterparties
     meta:
-      id: req_c8e5086cfdd44d4f92e1dde110c47680
+      id: req_ca287b5e45c741e084947814db6fdd9f
       created: 1772782526505
       modified: 1772783135337
       isPrivate: false
@@ -1763,7 +1763,7 @@ collection:
   - url: 127.0.0.1:5000/api/warehouse/locations/warehouses
     name: Location-get warehouses
     meta:
-      id: req_49648ff6e6a34514a88a77a3c7887f58
+      id: req_39ed9dd3729c45688178000e6fd46a3e
       created: 1772783139985
       modified: 1772783168564
       isPrivate: false
@@ -1786,7 +1786,7 @@ collection:
   - url: 127.0.0.1:5000/api/warehouse/locations/couriers
     name: Locations-get couriers
     meta:
-      id: req_06dc2a115ee3419fa404d0cad16c365d
+      id: req_a37f4190ea594b5b926dd29c49465588
       created: 1772783170447
       modified: 1772783201194
       isPrivate: false
@@ -1809,7 +1809,7 @@ collection:
   - url: 127.0.0.1:5000/api/warehouse/locations/clients
     name: Locations-get clients
     meta:
-      id: req_b1a370421a3c4c3ebba12a4299836ae7
+      id: req_2d500e65204d4c808a754e2495ec10c5
       created: 1772783242981
       modified: 1772783272857
       isPrivate: false
@@ -1832,7 +1832,7 @@ collection:
   - url: 127.0.0.1:5000/api/warehouse/stocks/receive_from_counterparty
     name: Transactions-from counterparty to warehouse
     meta:
-      id: req_706716ad0a104d779eac402379d7bd88
+      id: req_e20c52196d8a4b02bdb2407e430670c2
       created: 1772783276059
       modified: 1773222728373
       isPrivate: false
@@ -1868,7 +1868,7 @@ collection:
   - url: 127.0.0.1:5000/api/warehouse/stocks?location_type=warehouse
     name: Transactions-get stock information in warehouse
     meta:
-      id: req_979b6dd00d364495b27876b82c2177d8
+      id: req_90f9702a733b4135a584d50f58e2eeb7
       created: 1772786810481
       modified: 1772855338664
       isPrivate: false
@@ -1891,7 +1891,7 @@ collection:
   - url: 127.0.0.1:5000/api/warehouse/transactions_from_counterparties?start_date=2026-01-01T00:00:00&end_date=2026-03-07T23:59:59&page=1&per_page=10
     name: Transactions-what was get from counterparty to warehouse
     meta:
-      id: req_be4187f50ab14ea0aeca7889b01fc5b5
+      id: req_a02f6315641e42388e3718e8846ac055
       created: 1772786919413
       modified: 1772855194576
       isPrivate: false
@@ -1914,7 +1914,7 @@ collection:
   - url: 127.0.0.1:5000/api/warehouse/transaction
     name: Transactions-from or to warehouse and courier
     meta:
-      id: req_36780a9d45554bec946040ec893eea84
+      id: req_ff9c1899cfa442c4909ff047252040d3
       created: 1772855328539
       modified: 1773222823106
       isPrivate: false
@@ -1951,7 +1951,7 @@ collection:
   - url: 127.0.0.1:5000/api/warehouse/transactions?lang=ru&start_date=2026-01-01T00:00:00&end_date=2026-03-07T23:59:59&user_id=1&operation_type=courier_issue&page=1&per_page=10
     name: Tranasctions-from or to warehouse and courier (all)
     meta:
-      id: req_55f0bb97663148d3839f63d706ab40a9
+      id: req_e163280830844ccab8b3f9fbd4246e64
       created: 1772857291464
       modified: 1772857424753
       isPrivate: false
@@ -1974,7 +1974,7 @@ collection:
   - url: 127.0.0.1:5000/api/warehouse/transaction/3
     name: Transactions-delete
     meta:
-      id: req_fb67849d94ff4e359d91d2a13908f759
+      id: req_92a69ca7e45744f7bf1664365bf4217e
       created: 1772857427304
       modified: 1772857980053
       isPrivate: false
@@ -1997,7 +1997,7 @@ collection:
   - url: 127.0.0.1:5000/api/courier/stocks
     name: Courier-warehouse-get all in stock
     meta:
-      id: req_3b9061c3409c47cc9a517e8a9893ec9a
+      id: req_6f9af8df27b64f30884781b2a2e4d0c6
       created: 1772858474844
       modified: 1772858887450
       isPrivate: false
@@ -2020,7 +2020,7 @@ collection:
   - url: 127.0.0.1:5000/api/courier/transactions?date=2026-03-07&lang=ru
     name: Courier-transactions for date-get all
     meta:
-      id: req_0387cce182b143a49d55b1b86c982cfc
+      id: req_99460b78e44e4957ac065f4177d8767e
       created: 1772859168662
       modified: 1772860140632
       isPrivate: false
@@ -2043,7 +2043,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/users?role=courier
     name: Courier-get courier list
     meta:
-      id: req_5070692d5db148e0a620128e929799d8
+      id: req_b5ad04030ab74c2cbbd249386d8708ee
       created: 1772860143669
       modified: 1772861472288
       isPrivate: false
@@ -2066,7 +2066,7 @@ collection:
   - url: http://127.0.0.1:5000/api/courier/transactions
     name: Courier-transfer between couriers
     meta:
-      id: req_ec39814996b24c5bb993817562ddddcf
+      id: req_3aa7c46900d14f8bab4acfa83b3c9f2e
       created: 1772861475126
       modified: 1772862201002
       isPrivate: false
@@ -2101,7 +2101,7 @@ collection:
   - url: 127.0.0.1:5000/api/courier/transactions/5?lang=ru
     name: Courier-get information about specific transaction
     meta:
-      id: req_7b39952fe3ad46deb97c6e269594de5a
+      id: req_b05ec7bf52734ff4a39732d3a7d7baa3
       created: 1772862203806
       modified: 1772862904277
       isPrivate: false
@@ -2124,7 +2124,7 @@ collection:
   - url: 127.0.0.1:5000/api/admin/users/2/equipment
     name: Courier profile-add or edit transport number and device info
     meta:
-      id: req_8d6681b499204b298c26e3f7713575f4
+      id: req_90d688d445f84ae5bfff3da520578b2c
       created: 1772862908195
       modified: 1773223008887
       isPrivate: false
@@ -2156,7 +2156,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/users/2/districts/attach
     name: Courier profile-add districts to courier
     meta:
-      id: req_0a33ced7404944fe9a4cd9e3b46abc2a
+      id: req_adfaab5aab1f4f1b9a4d1856d299d859
       created: 1772869387476
       modified: 1773223030197
       isPrivate: false
@@ -2188,7 +2188,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/users/3/districts/2
     name: Courier profile-deattach districts from courier
     meta:
-      id: req_9302bda377534d1892764f287a5c811a
+      id: req_2dc5faf7a52247ac89637284ed820b45
       created: 1772869869948
       modified: 1772869970081
       isPrivate: false
@@ -2211,7 +2211,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/couriers/full-list
     name: Courier profile-get all info
     meta:
-      id: req_f526a2da01124ade9e6b51097890cac6
+      id: req_2515d7dd292b4ab99ee6789a1f900aa2
       created: 1772869975825
       modified: 1772870070319
       isPrivate: false
@@ -2234,7 +2234,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/clients
     name: Client-add
     meta:
-      id: req_f4e444f4b16f4c7aac3413ea69ff4f97
+      id: req_3525480bde2a4a16b3c8a714a229ee6b
       created: 1772943726797
       modified: 1773223123511
       isPrivate: false
@@ -2266,7 +2266,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/clients
     name: Client-get all
     meta:
-      id: req_457b0ff7a4e8421692d7bb917478edf4
+      id: req_1e75c221aea74194b49de4ebf9828d48
       created: 1772943861974
       modified: 1772943963224
       isPrivate: false
@@ -2289,7 +2289,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/clients/1
     name: Client-get one
     meta:
-      id: req_a405be4c5272442fbc70559667a4acda
+      id: req_f09bd59a2c494738a0a83b1173874664
       created: 1772943900500
       modified: 1772943938221
       isPrivate: false
@@ -2312,7 +2312,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/clients/1/toggle-active
     name: Client-block
     meta:
-      id: req_8dc1d8109ea34134946a03571aa4e63d
+      id: req_8376d5bdd0e1400e89d3657736bf0de0
       created: 1772943974083
       modified: 1772944227759
       isPrivate: false
@@ -2344,7 +2344,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/clients/1/toggle-active
     name: Client-unblock
     meta:
-      id: req_eaf2565f18af44cd85a8eca956adfa37
+      id: req_334bf5578eb54a18ad16639d4cc2e0a6
       created: 1772944095763
       modified: 1772944218011
       isPrivate: false
@@ -2375,7 +2375,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/clients/1/block-reasons
     name: Client-block reasons
     meta:
-      id: req_f4fc9e8056414a3e80fe8922a8f85f1d
+      id: req_3ce87e38f92644909fd799e0577e4f52
       created: 1772944236494
       modified: 1772944304342
       isPrivate: false
@@ -2398,7 +2398,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/clients/1/phones
     name: Client-add phone information
     meta:
-      id: req_e6df33b73b0b4c3085c86c169574ee70
+      id: req_70e2409655164b7f808b643afa0bfcf6
       created: 1772944307072
       modified: 1773223179927
       isPrivate: false
@@ -2429,7 +2429,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/clients/1/phones
     name: Client-get phone information
     meta:
-      id: req_49e21e800d9b4ce08253f2931be7f38a
+      id: req_f91483abbf5b434c8811065d1073241b
       created: 1772944429411
       modified: 1772944443479
       isPrivate: false
@@ -2452,7 +2452,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/clients/phones/1
     name: Client-delete phone information
     meta:
-      id: req_fba7b8290bd240c79d61cc88573edb31
+      id: req_88279186a568413d8145fbe50ce40606
       created: 1772944449597
       modified: 1772944506547
       isPrivate: false
@@ -2475,7 +2475,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/clients/1/addresses
     name: Client-add address information
     meta:
-      id: req_4c60a6d752234d69b168c3f35a8980bd
+      id: req_cdd120d7b5cc4911b285cff5e208b9a4
       created: 1772944510172
       modified: 1773223218200
       isPrivate: false
@@ -2508,7 +2508,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/clients/1/addresses
     name: Client-get addresses
     meta:
-      id: req_205653bb23c142ddb7f9078cc991f4bc
+      id: req_de249fbcfd5c410ea5b7eabff3b94451
       created: 1772945075515
       modified: 1772945100173
       isPrivate: false
@@ -2531,7 +2531,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/clients/addresses/1
     name: Client-delete address
     meta:
-      id: req_c9590d55e7c14acaa02afe6d88208732
+      id: req_9c1cc3670441489a8c26a7705b985e81
       created: 1772945105068
       modified: 1772945146544
       isPrivate: false
@@ -2554,7 +2554,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/clients/1
     name: Client-update
     meta:
-      id: req_3d26da4b64264b7da54a83896a811432
+      id: req_96cd9e939f7749fdb5a95e99425b651d
       created: 1772945149510
       modified: 1772945281548
       isPrivate: false
@@ -2586,7 +2586,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/clients/1/credit
     name: Client-add credit limit information or update
     meta:
-      id: req_8edcc28393504adda32b69c1aa91ec08
+      id: req_30fb2c7970a64ee1abd50744c8a1739e
       created: 1772945284083
       modified: 1772946884517
       isPrivate: false
@@ -2617,7 +2617,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/clients/1/credit
     name: Client-get information about credit of user
     meta:
-      id: req_caa87ff11cf548b7829d6173fedd83ba
+      id: req_e06cf96b50284306bf3b1bd5f6c7ea40
       created: 1772945476706
       modified: 1772946935825
       isPrivate: false
@@ -2640,7 +2640,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/clients/1/credit/payments?page=1&per_page=10
     name: Client-get information about payments of credits
     meta:
-      id: req_976e879f94c94acf9084af3093336393
+      id: req_1262a11167074ff49d61dad31f6e85da
       created: 1772946940670
       modified: 1772946997009
       isPrivate: false
@@ -2663,7 +2663,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/credit-payments
     name: Client-add payment info(payment or write_off)
     meta:
-      id: req_14462d868d7b4044b969756d5208a333
+      id: req_2153a62765a74f1eaa024630aefd5d88
       created: 1772947122702
       modified: 1772947458277
       isPrivate: false
@@ -2697,7 +2697,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/services
     name: Services-add
     meta:
-      id: req_cecc1d7853f745268b1912f2a3ea0f5b
+      id: req_a01a9d7e75cd47c6a479343f5a5a60e1
       created: 1772952229516
       modified: 1773223308128
       isPrivate: false
@@ -2729,7 +2729,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/services/1/toggle
     name: Services-block and unblock
     meta:
-      id: req_09d9e3e969f144978c2876bca5c16406
+      id: req_85c78b25979241c993e03a3f8ecfcc01
       created: 1772952298711
       modified: 1772952332061
       isPrivate: false
@@ -2752,7 +2752,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/services/prices
     name: "Services-add or update prices "
     meta:
-      id: req_38297499ac65469fb9f69663554d640a
+      id: req_c1633f048bd145029a694f8e0795be5f
       created: 1772952334890
       modified: 1773223385698
       isPrivate: false
@@ -2786,7 +2786,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/services
     name: Services-get all
     meta:
-      id: req_0a3d56a2a770427ba29128ce501ce4a3
+      id: req_e8e947fdd20a454ca391da3176a8bef1
       created: 1772952401265
       modified: 1772953113829
       isPrivate: false
@@ -2809,7 +2809,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/services/prices/1
     name: Services-delete prices
     meta:
-      id: req_273a9e04dfd4471d99dfed847e560344
+      id: req_61d780dae59e4eeea24b20d7206f0f93
       created: 1772952809021
       modified: 1772953110608
       isPrivate: false
@@ -2832,7 +2832,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/discounts
     name: Discount-add-percentage
     meta:
-      id: req_233ebc2dad334461ba4178d8715a177c
+      id: req_4a6acab02a1d4337bc427a8dcc0f28a1
       created: 1772953099449
       modified: 1773223705737
       isPrivate: false
@@ -2875,7 +2875,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/discounts
     name: Discount-add-nth order
     meta:
-      id: req_5c7a4a1cdc334ace8afd20f5665b8d33
+      id: req_e744807c404a4c50a6f4da8d2886d27f
       created: 1772955989537
       modified: 1773114877031
       isPrivate: false
@@ -2918,7 +2918,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/discounts/1
     name: Discount-update
     meta:
-      id: req_3326a3444d444527b1ef8f8df3d9ebcc
+      id: req_dc45138c41504350bef93924ec607063
       created: 1773114923371
       modified: 1773114995552
       isPrivate: false
@@ -2952,7 +2952,7 @@ collection:
   - url: http://127.0.0.1:5000/api/admin/discounts?lang=ru
     name: Discount-get all
     meta:
-      id: req_c420b76ba0d049648ecc09960fcfdb33
+      id: req_3aeec6ebc3f54e05a2205dd762190c29
       created: 1773115024614
       modified: 1773115084054
       isPrivate: false
@@ -2975,7 +2975,7 @@ collection:
   - url: http://127.0.0.1:5000/api/operator/orders/calculate
     name: Operator-Order-calculate
     meta:
-      id: req_5f8a99a262d24a92a8ec27bba07d28e6
+      id: req_fe178efd6a06414f8c09216a8de591c4
       created: 1773115537587
       modified: 1773245183747
       isPrivate: false
@@ -3017,9 +3017,9 @@ collection:
   - url: http://127.0.0.1:5000/api/operator/orders
     name: Operator-Order-add
     meta:
-      id: req_5ed0b86f9ec44f64bf9da2fc722ffda0
+      id: req_7799fa62867b4bcdaac2774a03eac094
       created: 1773238413366
-      modified: 1773245188117
+      modified: 1773550498740
       isPrivate: false
       description: ""
       sortKey: -1773238413366
@@ -3029,9 +3029,10 @@ collection:
       text: |-
         {
           "client_id": 1,
+        	"courier_id": 2,
           "client_address_id": 1,
           "client_phone_id": 1,
-          "delivery_date": "2026-03-12",
+          "delivery_date": "2026-03-15",
           "delivery_time_type": "during_day",
           "payment_type": "cash",
           "note": "Please leave at the door.",
@@ -3064,7 +3065,7 @@ collection:
   - url: http://127.0.0.1:5000/api/operator/orders
     name: Operator-Order-add-second check
     meta:
-      id: req_38fe4e1da9d54c37b543e831511f0d8f
+      id: req_f156454dd753473988b02f6bfb78c352
       created: 1773238681147
       modified: 1773245193259
       isPrivate: false
@@ -3108,7 +3109,7 @@ collection:
   - url: http://127.0.0.1:5000/api/operator/monitoring?lang=ru
     name: Operator-Order-monitoring
     meta:
-      id: req_1a9e395490054095a3697e83b9113839
+      id: req_8e66c08e6a3442d09a2813cd301fb6ab
       created: 1773238881916
       modified: 1773245200174
       isPrivate: false
@@ -3131,7 +3132,7 @@ collection:
   - url: http://127.0.0.1:5000/api/operator/clients/1/orders?lang=ru
     name: Operator-Order-history
     meta:
-      id: req_27f2c290c7264f648a5a302ae6617551
+      id: req_1becb28bc60b46a9baf2f665ba03e386
       created: 1773239069718
       modified: 1773245197333
       isPrivate: false
@@ -3154,7 +3155,7 @@ collection:
   - url: http://127.0.0.1:5000/api/operator/couriers_info?date=2026-03-12
     name: Operator-Order-couriers info
     meta:
-      id: req_83c92d2efe4d4d6896a6d5dfb9478e4c
+      id: req_22e03dd8122b44c7988deccc45ff6591
       created: 1773239514699
       modified: 1773245203596
       isPrivate: false
@@ -3177,7 +3178,7 @@ collection:
   - url: http://127.0.0.1:5000/api/operator/specific_courier_info/2?date=2026-03-11&lang=ru
     name: Operator-Order-specific courier info
     meta:
-      id: req_4693c485bb64410299b42e8615c3870c
+      id: req_8502cf6f6be54438aafbc138c3f033f2
       created: 1773239874958
       modified: 1773245206447
       isPrivate: false
@@ -3200,7 +3201,7 @@ collection:
   - url: http://127.0.0.1:5000/api/courier/orders/summary
     name: Courier-order-summary
     meta:
-      id: req_d9e95eb019684267b207a2ea85edf732
+      id: req_30fc64afd3c54ef9863fbc525e23f959
       created: 1773245005119
       modified: 1773245164193
       isPrivate: false
@@ -3223,7 +3224,7 @@ collection:
   - url: http://127.0.0.1:5000/api/courier/inventory
     name: Courier-inventory-summary
     meta:
-      id: req_75c667e3e320497da2be44fde8ed54da
+      id: req_5abecd4d2fd348e397f38310a4ba06ff
       created: 1773245214980
       modified: 1773245296597
       isPrivate: false
@@ -3246,7 +3247,7 @@ collection:
   - url: http://127.0.0.1:5000/api/courier/orders
     name: Courier-orders for today
     meta:
-      id: req_753bc190b72645fc8edd615ae8bf11af
+      id: req_043cf0946c5b4552b1a76c80df9c1e98
       created: 1773245300101
       modified: 1773245585242
       isPrivate: false
@@ -3269,7 +3270,7 @@ collection:
   - url: http://127.0.0.1:5000/api/courier/orders/2
     name: Courier-specific order summary
     meta:
-      id: req_06d7f107d4a94ec1baf6221978a52985
+      id: req_e65579c7a6c547a791a0bb3d05bd9c1e
       created: 1773245640805
       modified: 1773245709352
       isPrivate: false
@@ -3289,15 +3290,236 @@ collection:
         send: true
         store: true
       rebuildPath: true
-  - url: ""
-    name: New Request
+  - url: http://127.0.0.1:5000/api/admin/services/1/rules
+    name: Services-add rules
     meta:
-      id: req_06961206e03a4b89a792170bd0987bf9
+      id: req_006cf8bb2d8e478688a51c40e313439a
       created: 1773245715695
-      modified: 1773245715695
+      modified: 1773549117369
       isPrivate: false
       description: ""
       sortKey: -1773245715695
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "product_id": 1,
+          "product_state_id": 2,
+          "service_type": "incoming",
+          "quantity": 1
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/admin/services/rules/4
+    name: Services-delete rules
+    meta:
+      id: req_696c2059badc48119916f6cce79891b9
+      created: 1773549078209
+      modified: 1773549197382
+      isPrivate: false
+      description: ""
+      sortKey: -1773549078209
+    method: DELETE
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/accounter/couriers/debt?date=2026-03-12
+    name: Accounter-couriers-debt
+    meta:
+      id: req_ee14a7407585418a8d018f3952ea77d5
+      created: 1773549087452
+      modified: 1773549522064
+      isPrivate: false
+      description: ""
+      sortKey: -1773549087452
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/courier/orders/4/status
+    name: Courier-update status
+    meta:
+      id: req_5263810c45f8410e834d858fa7cc24f7
+      created: 1773550112158
+      modified: 1773550659173
+      isPrivate: false
+      description: ""
+      sortKey: -1773245678250
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "status": "in_progress"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/courier/orders/4/notes
+    name: Courier-add note
+    meta:
+      id: req_38b0cf2edde247b58113d1468e349d61
+      created: 1773550668722
+      modified: 1773550902477
+      isPrivate: false
+      description: ""
+      sortKey: -1773245696972.5
+    method: POST
+    body:
+      mimeType: application/json
+      text: >-
+        {
+          "note": "Клиент попросил оставить заказ у двери. Позвонил в звонок и ушел."
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/courier/orders/4/notes
+    name: Courier-get all notes
+    meta:
+      id: req_bc140b8640ed4b8eb689af08b52afd16
+      created: 1773550935535
+      modified: 1773551248540
+      isPrivate: false
+      description: ""
+      sortKey: -1773245687611.25
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/courier/orders/4/deliver
+    name: Courier-deliver order
+    meta:
+      id: req_284e1e1382784e09a38fa798717f1ef4
+      created: 1773550962702
+      modified: 1773551435299
+      isPrivate: false
+      description: ""
+      sortKey: -1773245706333.75
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "payment_type": "cash_and_card",
+          "cash_amount": 100,
+          "card_amount": 8
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/courier/payments/daily
+    name: Courier-payments daily
+    meta:
+      id: req_975b8979baf74fe69568af0f18f55fcc
+      created: 1773551438831
+      modified: 1773551568084
+      isPrivate: false
+      description: ""
+      sortKey: -1773245711014.375
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.4.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://127.0.0.1:5000/api/courier/payments/summary
+    name: Courier-payments summary
+    meta:
+      id: req_48b91be351ea4b63ae9f37989cffae30
+      created: 1773551554322
+      modified: 1773551655229
+      isPrivate: false
+      description: ""
+      sortKey: -1773245713354.6875
     method: GET
     headers:
       - name: User-Agent
@@ -3315,13 +3537,13 @@ collection:
 cookieJar:
   name: Default Jar
   meta:
-    id: jar_aca031e23bdc4997a34cae3671680f0d
+    id: jar_8614f9c25a764f9cb34109e8aaca093a
     created: 1772691279748
-    modified: 1773245686815
+    modified: 1773551601091
   cookies:
-    - id: 218d5c1c-9923-4b4b-8d02-0201aadebcb7
+    - id: 32252b65-df95-450f-93c4-9b6793a3a4b8
       key: session
-      value: eyJfcGVybWFuZW50Ijp0cnVlLCJyb2xlIjoiY291cmllciIsInVzZXJfaWQiOjJ9.abGU9g.ivcHs5HIXq2Et_ARS_16fEqFszU
+      value: eyJfcGVybWFuZW50Ijp0cnVlLCJyb2xlIjoiY291cmllciIsInVzZXJfaWQiOjJ9.abY_8Q.WEAT85mil0kWRnz_vynvuHKGcig
       domain: 127.0.0.1
       path: /
       secure: false
@@ -3330,7 +3552,7 @@ cookieJar:
 environments:
   name: Base Environment
   meta:
-    id: env_defdba3f3f914520904362c7c02e4286
+    id: env_62c4214fad8f43ab9b35df43f05d203b
     created: 1772691279739
     modified: 1772691279739
     isPrivate: false
