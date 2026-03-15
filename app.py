@@ -9,6 +9,7 @@ import os
 from db import Db
 from api.operator import operator_bp
 from api.accounter import accounter_bp
+from api.director import director_bp
 
 def create_app():
     app = Flask(__name__)
