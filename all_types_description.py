@@ -66,7 +66,7 @@ class ServiceTypes:
     
     LABELS = {
         INCOMING: {'ru': 'Забираем от клиента', 'tm': 'Klientden almak'},
-        OUTCOMING: {'ru': 'ВВыдаем клиенту', 'tm': 'Kliente bermek'},
+        OUTCOMING: {'ru': 'Выдаем клиенту', 'tm': 'Kliente bermek'},
         TRANSFORMATION: {'ru': 'Списываем у клиента', 'tm': 'Klientden hasapdan çykarmak'},
     }
 

@@ -57,6 +57,15 @@ def get_transaction_types():
     ]
     return jsonify(data), 200
 
+# -------------------------------------------
+# GET: Типы транзакций для курьеров (выдача/возврат)
+# -------------------------------------------
+@admin_bp.route('/courier-transaction-types', methods=['GET'])
+def get_courier_transaction_types():
+    keys = [TransactionTypes.COURIER_ISSUE, TransactionTypes.COURIER_RETURN]
+    data = [{"value": key, "label": TransactionTypes.LABELS[key]} for key in keys]
+    return jsonify(data), 200
+
 # ------------------------------
 # GET: Типы скидок
 # ------------------------------
