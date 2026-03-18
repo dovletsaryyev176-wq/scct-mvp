@@ -155,10 +155,9 @@ def list_transactions():
         except ValueError:
             return jsonify({'error': 'user_id должен быть числом'}), 400
 
-    operation_type = request.args.get('operation_type')
-    if operation_type:
-        where_clauses.append("t.operation_type = %s")
-        params.append(operation_type)
+    # Убираем динамическую фильтрацию по operation_type и жестко задаем два типа
+    where_clauses.append("t.operation_type IN (%s, %s)")
+    params.extend([TransactionTypes.COURIER_ISSUE, TransactionTypes.COURIER_RETURN])
 
     try:
         page = int(request.args.get('page', 1))
@@ -301,3 +300,214 @@ def delete_transaction(transaction_id):
         return jsonify({'error': 'Ошибка при отмене транзакции', 'detail': str(e)}), 500
     finally:
         conn.close()
+
+# -------------------------------------------------------------
+# 1. Отчет по остаткам в машине каждого курьера на данную дату
+# -------------------------------------------------------------
+@warehouse_bp.route('/couriers/stocks', methods=['GET'])
+@roles_required('admin', 'operator', 'warehouse')
+def get_all_couriers_stocks():
+    from datetime import date, datetime
+    date_str = request.args.get('date')
+    if date_str:
+        try:
+            target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({'error': 'Неверный формат даты. Используйте YYYY-MM-DD'}), 400
+    else:
+        target_date = date.today()
+
+    conn = Db.get_connection()
+    try:
+        with conn.cursor() as cursor:
+            # Если дата - сегодня, просто берем текущие остатки
+            if target_date == date.today():
+                query = """
+                    SELECT 
+                        u.id AS courier_id,
+                        u.full_name AS courier_name,
+                        p.name AS product_name,
+                        pt.name AS product_type_name,
+                        b.name AS brand_name,
+                        ps.name AS product_state_name,
+                        s.quantity
+                    FROM stocks s
+                    JOIN locations l ON s.location_id = l.id
+                    JOIN users u ON l.user_id = u.id
+                    JOIN products p ON s.product_id = p.id
+                    JOIN product_types pt ON p.product_type_id = pt.id
+                    JOIN brands b ON p.brand_id = b.id
+                    JOIN product_states ps ON s.product_state_id = ps.id
+                    WHERE l.type = 'courier' AND s.quantity > 0
+                    ORDER BY u.full_name, p.name
+                """
+                cursor.execute(query)
+            else:
+                # Если дата в прошлом, высчитываем исторические остатки по транзакциям
+                query = """
+                    SELECT 
+                        u.id AS courier_id,
+                        u.full_name AS courier_name,
+                        p.name AS product_name,
+                        pt.name AS product_type_name,
+                        b.name AS brand_name,
+                        ps.name AS product_state_name,
+                        SUM(CASE WHEN t.to_location_id = l.id THEN t.quantity ELSE 0 END) -
+                        SUM(CASE WHEN t.from_location_id = l.id THEN t.quantity ELSE 0 END) AS quantity
+                    FROM locations l
+                    JOIN users u ON l.user_id = u.id
+                    JOIN transactions t ON (t.to_location_id = l.id OR t.from_location_id = l.id)
+                    JOIN products p ON t.product_id = p.id
+                    JOIN product_types pt ON p.product_type_id = pt.id
+                    JOIN brands b ON p.brand_id = b.id
+                    JOIN product_states ps ON t.product_state_id = ps.id
+                    WHERE l.type = 'courier' AND DATE(t.created_at) <= %s
+                    GROUP BY u.id, u.full_name, p.name, pt.name, b.name, ps.name
+                    HAVING quantity > 0
+                    ORDER BY u.full_name, p.name
+                """
+                cursor.execute(query, (target_date,))
+                
+            stocks = cursor.fetchall()
+            
+            result = []
+            for stock in stocks:
+                result.append({
+                    'courier_id': stock['courier_id'],
+                    'courier_name': stock['courier_name'],
+                    'product_name': stock['product_name'],
+                    'product_type_name': stock['product_type_name'],
+                    'brand_name': stock['brand_name'],
+                    'product_state_name': stock['product_state_name'],
+                    'quantity': float(stock['quantity'])
+                })
+                
+        return jsonify({
+            'date': target_date.isoformat(),
+            'stocks': result
+        }), 200
+    finally:
+        conn.close()
+
+# -------------------------------------------------------------
+# 2. Возврат всех остатков курьера на заданный склад
+# -------------------------------------------------------------
+@warehouse_bp.route('/couriers/<int:courier_id>/return-stocks', methods=['POST'])
+@roles_required('admin', 'operator', 'warehouse')
+def return_courier_stocks(courier_id):
+    data = request.get_json() or {}
+    to_warehouse_id = data.get('warehouse_id')
+    user_id = session.get('user_id')
+    note = data.get('note', 'Возврат всех остатков курьера на склад')
+    
+    if not to_warehouse_id:
+        return jsonify({'error': 'Необходим warehouse_id'}), 400
+
+    conn = Db.get_connection()
+    try:
+        conn.begin()
+        with conn.cursor() as cursor:
+            # Ищем локацию курьера
+            cursor.execute("SELECT id FROM locations WHERE user_id = %s AND type = 'courier'", (courier_id,))
+            courier_loc = cursor.fetchone()
+            if not courier_loc:
+                conn.rollback()
+                return jsonify({'error': 'Локация курьера не найдена'}), 404
+            from_loc_id = courier_loc['id']
+
+            # Ищем локацию склада (по warehouse_id)
+            cursor.execute("SELECT id FROM locations WHERE warehouse_id = %s AND type = 'warehouse'", (to_warehouse_id,))
+            warehouse_loc = cursor.fetchone()
+            if not warehouse_loc:
+                conn.rollback()
+                return jsonify({'error': 'Локация склада не найдена'}), 404
+            to_loc_id = warehouse_loc['id']
+
+            # Получаем все остатки курьера > 0
+            cursor.execute("""
+                SELECT id, product_id, product_state_id, quantity 
+                FROM stocks 
+                WHERE location_id = %s AND quantity > 0
+                FOR UPDATE
+            """, (from_loc_id,))
+            courier_stocks = cursor.fetchall()
+
+            if not courier_stocks:
+                conn.rollback()
+                return jsonify({'message': 'У курьера нет остатков для возврата'}), 200
+
+            returned_items = []
+            
+            for stock in courier_stocks:
+                prod_id = stock['product_id']
+                state_id = stock['product_state_id']
+                qty = stock['quantity']
+
+                # Списываем у курьера
+                cursor.execute("UPDATE stocks SET quantity = 0 WHERE id = %s", (stock['id'],))
+
+                # Зачисляем на склад
+                cursor.execute("""
+                    SELECT id FROM stocks 
+                    WHERE location_id = %s AND product_id = %s AND product_state_id = %s 
+                    FOR UPDATE
+                """, (to_loc_id, prod_id, state_id))
+                to_stock = cursor.fetchone()
+
+                if to_stock:
+                    cursor.execute("UPDATE stocks SET quantity = quantity + %s WHERE id = %s", (qty, to_stock['id']))
+                else:
+                    cursor.execute("""
+                        INSERT INTO stocks (location_id, product_id, product_state_id, quantity) 
+                        VALUES (%s, %s, %s, %s)
+                    """, (to_loc_id, prod_id, state_id, qty))
+
+                # Пишем транзакцию
+                cursor.execute("""
+                    INSERT INTO transactions 
+                    (operation_type, from_location_id, to_location_id, product_id, product_state_id, quantity, user_id, note)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                """, (TransactionTypes.COURIER_RETURN, from_loc_id, to_loc_id, prod_id, state_id, qty, user_id, note))
+                
+                returned_items.append({
+                    'product_id': prod_id,
+                    'product_state_id': state_id,
+                    'quantity': float(qty)
+                })
+
+        conn.commit()
+        return jsonify({
+            'message': 'Все остатки успешно возвращены на склад',
+            'returned_items': returned_items
+        }), 200
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': 'Ошибка при возврате остатков', 'detail': str(e)}), 500
+    finally:
+        conn.close()
+
+
+# -------------------------------------------------------------
+# 3. Получить список всех складов с их локациями
+# -------------------------------------------------------------
+@warehouse_bp.route('/warehouses/list', methods=['GET'])
+@roles_required('admin', 'operator', 'warehouse')
+def list_warehouses_for_return():
+    conn = Db.get_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT w.id AS warehouse_id, w.name AS warehouse_name, l.id AS location_id
+                FROM warehouses w
+                JOIN locations l ON l.warehouse_id = w.id
+                WHERE w.is_active = 1 AND l.type = 'warehouse'
+            """)
+            warehouses = cursor.fetchall()
+
+            return jsonify(warehouses), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+

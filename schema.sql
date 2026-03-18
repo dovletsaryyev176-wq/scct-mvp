@@ -422,3 +422,13 @@ CREATE TABLE courier_payments (
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
     FOREIGN KEY (accounter_id) REFERENCES users(id) ON DELETE SET NULL
 );
+
+-- Таблица истории SMS
+CREATE TABLE sms_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sender_id INT NOT NULL,
+    recipient_phone VARCHAR(50) NOT NULL,
+    message_text TEXT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
+);

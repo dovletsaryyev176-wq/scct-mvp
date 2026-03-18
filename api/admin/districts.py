@@ -132,6 +132,7 @@ def get_districts_stats():
                 SELECT
                     d.id AS dist_id,
                     d.name AS dist_name,
+                    d.is_active,
                     c.name AS city_name,
                     COALESCE(cd.couriers_count, 0) AS couriers_count,
                     COALESCE(ca.clients_count, 0) AS clients_count
