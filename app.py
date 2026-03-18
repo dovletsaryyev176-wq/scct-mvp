@@ -1,4 +1,5 @@
-from flask import Flask
+from flask import Flask, request, session
+import jwt
 from config import Config
 from api.auth.routes import auth_bp
 from api.admin import admin_bp
@@ -30,6 +31,18 @@ def create_app():
         allowed_origins = re.compile(r".*")
 
     CORS(app, supports_credentials=True, resources={r"/*": {"origins": allowed_origins}}, allow_headers="*", expose_headers="*")
+
+    @app.before_request
+    def load_jwt_to_session():
+        auth_header = request.headers.get('Authorization')
+        if auth_header and auth_header.startswith('Bearer '):
+            token = auth_header.split(' ')[1]
+            try:
+                data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+                session['user_id'] = data.get('user_id')
+                session['role'] = data.get('role')
+            except Exception as e:
+                pass
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')

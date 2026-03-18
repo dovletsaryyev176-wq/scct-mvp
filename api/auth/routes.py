@@ -1,6 +1,7 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, current_app
 from werkzeug.security import check_password_hash
 from db import Db
+import jwt
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -29,8 +30,18 @@ def login():
             session['user_id'] = user['id']
             session['role'] = user['role']
 
+            token = jwt.encode(
+                {
+                    'user_id': user['id'],
+                    'role': user['role']
+                },
+                current_app.config['SECRET_KEY'],
+                algorithm="HS256"
+            )
+
             return jsonify({
                 "status": "success",
+                "token": token,
                 "user": {
                     "id": user['id'],
                     "username": user['username'],
