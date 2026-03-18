@@ -16,11 +16,11 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     Db.init(
-    host="localhost",
-    user="root",
-    password="19121987",
-    database="sarwan",
-    maxconnections=20
+        host=app.config.get('DB_HOST', 'localhost'),
+        user=app.config.get('DB_USER', 'root'),
+        password=app.config.get('DB_PASSWORD', ''),
+        database=app.config.get('DB_NAME', 'sarwan'),
+        maxconnections=app.config.get('DB_MAXCONNECTIONS', 20)
     )
     
     cors_origins_env = os.environ.get("CORS_ORIGINS", "").strip()
