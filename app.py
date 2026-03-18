@@ -1,4 +1,4 @@
-from flask import Flask, app
+from flask import Flask
 from config import Config
 from api.auth.routes import auth_bp
 from api.admin import admin_bp
@@ -22,7 +22,13 @@ def create_app():
     maxconnections=20
     )
     
-    CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://192.168.1.188:8080"}})
+    cors_origins_env = os.environ.get("CORS_ORIGINS", "").strip()
+    if cors_origins_env:
+        allowed_origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
+    else:
+        allowed_origins = r".*"
+
+    CORS(app, supports_credentials=True, resources={r"/*": {"origins": allowed_origins}})
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
