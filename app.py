@@ -21,7 +21,8 @@ def create_app():
     database="sarwan",
     maxconnections=20
     )
-    CORS(app,supports_credentials=True)
+    #CORS(app,supports_credentials=True)
+    CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://192.168.1.188:8080"}})
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
