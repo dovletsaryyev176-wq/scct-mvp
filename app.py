@@ -26,7 +26,7 @@ def create_app():
     if cors_origins_env:
         allowed_origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
     else:
-        allowed_origins = r".*"
+        allowed_origins = "*"
 
     CORS(app, supports_credentials=True, resources={r"/*": {"origins": allowed_origins}})
 
