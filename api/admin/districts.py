@@ -144,9 +144,14 @@ def get_districts_stats():
                     GROUP BY district_id
                 ) cd ON cd.district_id = d.id
                 LEFT JOIN (
-                    SELECT district_id, COUNT(DISTINCT client_id) AS clients_count
-                    FROM client_addresses
-                    GROUP BY district_id
+                    SELECT ca_primary.district_id, COUNT(*) AS clients_count
+                    FROM (
+                        SELECT client_id, MIN(id) AS primary_address_id
+                        FROM client_addresses
+                        GROUP BY client_id
+                    ) AS first_addr
+                    JOIN client_addresses ca_primary ON ca_primary.id = first_addr.primary_address_id
+                    GROUP BY ca_primary.district_id
                 ) ca ON ca.district_id = d.id
                 ORDER BY c.name, d.name
             """)
