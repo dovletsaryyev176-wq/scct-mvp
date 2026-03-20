@@ -769,6 +769,71 @@ def client_order_history(client_id):
         conn.close()
 
 # -------------------------------------------------------------
+# Поиск клиента по части номера телефона
+# -------------------------------------------------------------
+@operator_bp.route('/clients/search-by-phone', methods=['GET'])
+@roles_required('admin', 'operator', 'courier', 'warehouse')
+def search_client_by_phone_part():
+    phone_part = request.args.get('phone_part', type=str) or request.args.get('phone', type=str)
+
+    if not phone_part or not phone_part.strip():
+        return jsonify({'error': 'Необходимо указать phone_part'}), 400
+
+    phone_part = phone_part.strip()
+    if len(phone_part) < 3:
+        return jsonify({'error': 'phone_part слишком короткий (минимум 3 символа)'}), 400
+
+    like_pattern = f"%{phone_part}%"
+
+    conn = Db.get_connection()
+    try:
+        with conn.cursor() as cursor:
+            # Сколько всего совпадений по частичному совпадению
+            cursor.execute(
+                """
+                SELECT COUNT(*) as total
+                FROM clients c
+                JOIN client_phones cp ON c.id = cp.client_id
+                WHERE cp.phone LIKE %s
+                """,
+                (like_pattern,)
+            )
+            count_row = cursor.fetchone()
+            total_matches = count_row['total'] if count_row else 0
+
+            # Возвращаем "лучшее" совпадение:
+            # - точное совпадение приоритетнее
+            # - затем выбираем минимальную длину номера (скорее всего ближе к оригиналу)
+            cursor.execute(
+                """
+                SELECT
+                    c.id as client_id,
+                    cp.phone as client_phone,
+                    c.full_name as full_name
+                FROM clients c
+                JOIN client_phones cp ON c.id = cp.client_id
+                WHERE cp.phone LIKE %s
+                ORDER BY (cp.phone = %s) DESC, CHAR_LENGTH(cp.phone) ASC
+                LIMIT 1
+                """,
+                (like_pattern, phone_part)
+            )
+            row = cursor.fetchone()
+
+            if not row:
+                return jsonify({'error': 'Клиент не найден'}), 404
+
+            return jsonify({
+                'client_id': row['client_id'],
+                'client_phone': row['client_phone'],
+                'full_name': row['full_name'],
+                'total_matches': int(total_matches),
+            }), 200
+
+    finally:
+        conn.close()
+
+# -------------------------------------------------------------
 # Получение информации о курьерах на определенную дату
 # -------------------------------------------------------------
 @operator_bp.route('/couriers_info', methods=['GET'])
