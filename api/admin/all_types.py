@@ -43,6 +43,7 @@ def get_service_types():
     data = [
         {"value": key, "label": ServiceTypes.LABELS[key]}
         for key in ServiceTypes.LABELS
+        if key != ServiceTypes.TRANSFORMATION
     ]
     return jsonify(data), 200
 

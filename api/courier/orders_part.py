@@ -248,9 +248,9 @@ def deliver_order(order_id):
             # 3. Обновляем инфу об оплате в заказе
             cursor.execute("""
                 UPDATE orders 
-                SET payment_type = %s, cash_amount = %s, card_amount = %s, status = %s 
+                SET payment_type = %s, cash_amount = %s, card_amount = %s 
                 WHERE id = %s
-            """, (final_payment_type, final_cash, final_card, OrderStatuses.DELIVERED, order_id))
+            """, (final_payment_type, final_cash, final_card, order_id))
 
             # 4. Пишем в courier_payments (если курьер физически что-то собрал)
             # Если credit/free - курьер не собирает
@@ -328,22 +328,74 @@ def deliver_order(order_id):
                 """, (from_loc, prod_id, state_id))
                 stock_from = cursor.fetchone()
 
-                # Разрешаем клиенту уходить в минус (у нас может не быть инфы о том, сколько пустых бутылей у него было)
-                # Но курьеру не разрешаем? В идеале курьеру тоже нельзя. По ТЗ если outcoming и у курьера нет - ошибка
+                # Проверка курьера на уход в минус
                 if from_loc == courier_loc_id:
                     if not stock_from or Decimal(str(stock_from['quantity'])) < total_qty:
                         conn.rollback()
-                        return jsonify({'error': f'У курьера недостаточно товара {prod_id} (state {state_id}) для доставки заказа'}), 400
+                        return jsonify({'error': f'У курьера недостаточно товара {prod_id} (state {state_id}) для доставки'})
 
-                if stock_from:
+                # Авто-схлопывание: если у клиента не хватает списываемой тары (пустой)
+                # пытаемся найти эту же тару, но в другом состоянии (полную), и "выпить" её
+                if from_loc == client_loc_id:
+                    current_qty = Decimal(str(stock_from['quantity'])) if stock_from else Decimal('0.0')
+                    shortage = total_qty - current_qty
+                    
+                    if shortage > 0:
+                        cursor.execute("""
+                            SELECT id, product_state_id, quantity 
+                            FROM stocks 
+                            WHERE location_id = %s AND product_id = %s AND product_state_id != %s AND quantity > 0
+                            FOR UPDATE
+                        """, (from_loc, prod_id, state_id))
+                        other_stocks = cursor.fetchall()
+                        
+                        for os_rec in other_stocks:
+                            if shortage <= 0:
+                                break
+                            avail = Decimal(str(os_rec['quantity']))
+                            take = min(shortage, avail)
+                            
+                            # Списываем исходное (полное) состояние
+                            new_os_qty = avail - take
+                            cursor.execute("UPDATE stocks SET quantity = %s WHERE id = %s", (new_os_qty, os_rec['id']))
+                            
+                            # Пишем историю списания полного
+                            cursor.execute("""
+                                INSERT INTO transactions 
+                                (operation_type, from_location_id, to_location_id, product_id, product_state_id, quantity, user_id, note)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                            """, ('auto_transformation', from_loc, None, prod_id, os_rec['product_state_id'], float(take), user_id, f'Авто-списание/выпивание (заказ #{order_id})'))
+                            
+                            # Пишем историю начисления пустого
+                            cursor.execute("""
+                                INSERT INTO transactions 
+                                (operation_type, from_location_id, to_location_id, product_id, product_state_id, quantity, user_id, note)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                            """, ('auto_transformation', None, from_loc, prod_id, state_id, float(take), user_id, f'Авто-начисление пустой тары (заказ #{order_id})'))
+                            
+                            shortage -= take
+                            current_qty += take
+
+                        if stock_from:
+                            stock_from['quantity'] = current_qty
+                        elif current_qty > 0:
+                            # Создаем запись для целевого состояния, раз мы его виртуально начислили
+                            cursor.execute("""
+                                INSERT INTO stocks (location_id, product_id, product_state_id, quantity) 
+                                VALUES (%s, %s, %s, %s)
+                            """, (from_loc, prod_id, state_id, float(current_qty)))
+                            stock_from = {'id': cursor.lastrowid, 'quantity': float(current_qty)}
+
+                # Физическое списание с баланса (теперь с учетом схлопывания)
+                if stock_from and stock_from.get('id'):
                     new_q = Decimal(str(stock_from['quantity'])) - total_qty
                     cursor.execute("UPDATE stocks SET quantity = %s WHERE id = %s", (new_q, stock_from['id']))
                 else:
-                    # Если клиент уходит в минус
+                    # Если клиент в итоге все-таки уходит в минус (не хватило даже полных бутылей)
                     cursor.execute("""
                         INSERT INTO stocks (location_id, product_id, product_state_id, quantity) 
                         VALUES (%s, %s, %s, %s)
-                    """, (from_loc, prod_id, state_id, -total_qty))
+                    """, (from_loc, prod_id, state_id, -float(total_qty)))
 
                 # Начисление на to_loc
                 if to_loc is not None:
@@ -368,6 +420,13 @@ def deliver_order(order_id):
                     (operation_type, from_location_id, to_location_id, product_id, product_state_id, quantity, user_id, note)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 """, ('order_delivery', from_loc, to_loc, prod_id, state_id, total_qty, user_id, f'Доставка заказа #{order_id}'))
+
+            # 6. Обновляем статус заказа после всех успешных операций
+            cursor.execute("""
+                UPDATE orders 
+                SET status = %s 
+                WHERE id = %s
+            """, (OrderStatuses.DELIVERED, order_id))
 
             conn.commit()
             
