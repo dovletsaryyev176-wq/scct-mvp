@@ -499,6 +499,7 @@ def monitoring_orders():
                 SELECT 
                     o.id,
                     o.client_id,
+                    o.created_at,
                     o.delivery_date,
                     c.full_name as client_name,
                     cp.phone as client_phone,
@@ -582,6 +583,9 @@ def monitoring_orders():
 
                 if order.get('delivery_date'):
                     order['delivery_date'] = order['delivery_date'].isoformat()
+
+                if order.get('created_at'):
+                    order['created_at'] = order['created_at'].isoformat()
 
                 if order.get('delivery_time') and hasattr(order['delivery_time'], 'seconds'):
                     hours, remainder = divmod(order['delivery_time'].seconds, 3600)
