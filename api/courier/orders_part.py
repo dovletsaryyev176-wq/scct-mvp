@@ -311,8 +311,7 @@ def deliver_order(order_id):
                     from_loc = client_loc_id
                     to_loc = courier_loc_id
                 elif svc_type == ServiceTypes.TRANSFORMATION:
-                    # Просто списание у клиента (клиент использовал продукт, например пустую тару превратил в мусор? Или вода выпита?) 
-                    # По ТЗ "Списание у клиента"
+                    # Списание у клиента (продукт был использован/уничтожен, курьер ничего не забирает)
                     from_loc = client_loc_id
                     to_loc = None
                 else:
@@ -332,11 +331,11 @@ def deliver_order(order_id):
                 if from_loc == courier_loc_id:
                     if not stock_from or Decimal(str(stock_from['quantity'])) < total_qty:
                         conn.rollback()
-                        return jsonify({'error': f'У курьера недостаточно товара {prod_id} (state {state_id}) для доставки'})
+                        return jsonify({'error': f'У курьера недостаточно товара {prod_id} (state {state_id}) для доставки'}), 400
 
                 # Авто-схлопывание: если у клиента не хватает списываемой тары (пустой)
                 # пытаемся найти эту же тару, но в другом состоянии (полную), и "выпить" её
-                if from_loc == client_loc_id:
+                if from_loc == client_loc_id and svc_type == ServiceTypes.INCOMING:
                     current_qty = Decimal(str(stock_from['quantity'])) if stock_from else Decimal('0.0')
                     shortage = total_qty - current_qty
                     
