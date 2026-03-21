@@ -792,43 +792,81 @@ def search_client_by_phone_part():
     conn = Db.get_connection()
     try:
         with conn.cursor() as cursor:
-            # Сколько всего совпадений по частичному совпадению
+            # Находим уникальных клиентов, у которых есть совпадающий телефон
             cursor.execute(
                 """
-                SELECT COUNT(*) as total
+                SELECT DISTINCT c.id, c.full_name, c.is_active, c.created_at,
+                       c.price_type_id, pt.name as price_type_name
                 FROM clients c
                 JOIN client_phones cp ON c.id = cp.client_id
+                LEFT JOIN price_types pt ON c.price_type_id = pt.id
                 WHERE cp.phone LIKE %s
-                """,
-                (like_pattern,)
-            )
-            count_row = cursor.fetchone()
-            total_matches = count_row['total'] if count_row else 0
-
-            # Возвращаем все совпадения, отсортированные:
-            # - точное совпадение приоритетнее
-            # - затем по длине номера (короче = скорее всего ближе к оригиналу)
-            cursor.execute(
-                """
-                SELECT
-                    c.id as client_id,
-                    cp.phone as client_phone,
-                    c.full_name as full_name
-                FROM clients c
-                JOIN client_phones cp ON c.id = cp.client_id
-                WHERE cp.phone LIKE %s
-                ORDER BY (cp.phone = %s) DESC, CHAR_LENGTH(cp.phone) ASC
+                ORDER BY (EXISTS (
+                    SELECT 1 FROM client_phones cp2
+                    WHERE cp2.client_id = c.id AND cp2.phone = %s
+                )) DESC, c.id ASC
                 """,
                 (like_pattern, phone_part)
             )
-            rows = cursor.fetchall()
+            clients_raw = cursor.fetchall()
 
-            if not rows:
+            if not clients_raw:
                 return jsonify({'error': 'Клиент не найден'}), 404
 
+            client_ids = [c['id'] for c in clients_raw]
+            format_strings = ','.join(['%s'] * len(client_ids))
+
+            # Телефоны
+            cursor.execute(
+                f"SELECT id, client_id, phone FROM client_phones WHERE client_id IN ({format_strings})",
+                tuple(client_ids)
+            )
+            phones_raw = cursor.fetchall()
+            phones_map = {}
+            for p in phones_raw:
+                phones_map.setdefault(p['client_id'], []).append({"id": p['id'], "phone": p['phone']})
+
+            # Адреса
+            cursor.execute(
+                f"""
+                SELECT ca.id, ca.client_id, ca.city_id, ca.district_id, ca.address_line,
+                       ct.name as city_name, d.name as district_name
+                FROM client_addresses ca
+                LEFT JOIN cities ct ON ca.city_id = ct.id
+                LEFT JOIN districts d ON ca.district_id = d.id
+                WHERE ca.client_id IN ({format_strings})
+                """,
+                tuple(client_ids)
+            )
+            addresses_raw = cursor.fetchall()
+            addresses_map = {}
+            for a in addresses_raw:
+                addresses_map.setdefault(a['client_id'], []).append({
+                    "id": a['id'],
+                    "city_id": a['city_id'],
+                    "city_name": a['city_name'],
+                    "district_id": a['district_id'],
+                    "district_name": a['district_name'],
+                    "address_line": a['address_line']
+                })
+
+            clients_data = []
+            for c in clients_raw:
+                cid = c['id']
+                clients_data.append({
+                    "id": cid,
+                    "full_name": c['full_name'],
+                    "is_active": bool(c['is_active']),
+                    "created_at": c['created_at'].isoformat() if c['created_at'] else None,
+                    "price_type_id": c['price_type_id'],
+                    "price_type_name": c['price_type_name'],
+                    "phones": phones_map.get(cid, []),
+                    "addresses": addresses_map.get(cid, [])
+                })
+
             return jsonify({
-                'clients': rows,
-                'total_matches': int(total_matches),
+                'clients': clients_data,
+                'total_matches': len(clients_data),
             }), 200
 
     finally:
