@@ -663,6 +663,8 @@ def client_order_history(client_id):
                     o.delivery_date,
                     cp.phone as client_phone,
                     ca.address_line as client_address,
+                    city.name as city_name,
+                    dist.name as district_name,
                     o.payment_type,
                     o.total_amount,
                     o.cash_amount,
@@ -674,6 +676,8 @@ def client_order_history(client_id):
                 FROM orders o
                 LEFT JOIN client_phones cp ON o.client_phone_id = cp.id
                 LEFT JOIN client_addresses ca ON o.client_address_id = ca.id
+                LEFT JOIN cities city ON ca.city_id = city.id
+                LEFT JOIN districts dist ON ca.district_id = dist.id
                 LEFT JOIN users u ON o.user_id = u.id
                 LEFT JOIN courier_profiles cprof ON o.courier_id = cprof.user_id
                 LEFT JOIN users cour_u ON cprof.user_id = cour_u.id
@@ -801,9 +805,9 @@ def search_client_by_phone_part():
             count_row = cursor.fetchone()
             total_matches = count_row['total'] if count_row else 0
 
-            # Возвращаем "лучшее" совпадение:
+            # Возвращаем все совпадения, отсортированные:
             # - точное совпадение приоритетнее
-            # - затем выбираем минимальную длину номера (скорее всего ближе к оригиналу)
+            # - затем по длине номера (короче = скорее всего ближе к оригиналу)
             cursor.execute(
                 """
                 SELECT
@@ -814,19 +818,16 @@ def search_client_by_phone_part():
                 JOIN client_phones cp ON c.id = cp.client_id
                 WHERE cp.phone LIKE %s
                 ORDER BY (cp.phone = %s) DESC, CHAR_LENGTH(cp.phone) ASC
-                LIMIT 1
                 """,
                 (like_pattern, phone_part)
             )
-            row = cursor.fetchone()
+            rows = cursor.fetchall()
 
-            if not row:
+            if not rows:
                 return jsonify({'error': 'Клиент не найден'}), 404
 
             return jsonify({
-                'client_id': row['client_id'],
-                'client_phone': row['client_phone'],
-                'full_name': row['full_name'],
+                'clients': rows,
                 'total_matches': int(total_matches),
             }), 200
 
