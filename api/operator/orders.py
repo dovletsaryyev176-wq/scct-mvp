@@ -457,9 +457,20 @@ def create_order():
 @roles_required('admin', 'operator', 'courier', 'warehouse')
 def monitoring_orders():
     lang = request.args.get('lang', 'ru')
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 10, type=int)
-    offset = (page - 1) * per_page
+    # Пагинация только если явно передан per_page > 0. Иначе — все заказы (без LIMIT).
+    use_pagination = False
+    page = 1
+    per_page = None
+    offset = 0
+    if 'per_page' in request.args:
+        raw_pp = request.args.get('per_page', type=int)
+        if raw_pp is not None and raw_pp > 0:
+            use_pagination = True
+            per_page = min(raw_pp, 500)
+            page = request.args.get('page', 1, type=int)
+            if page is None or page < 1:
+                page = 1
+            offset = (page - 1) * per_page
     
     delivery_date = request.args.get('delivery_date', type=str)
     phone = request.args.get('phone', type=str)
@@ -526,9 +537,12 @@ def monitoring_orders():
                 LEFT JOIN users cour_u ON cprof.user_id = cour_u.id
                 {where_clause}
                 ORDER BY o.created_at DESC
-                LIMIT %s OFFSET %s
             """
-            query_params = params + [per_page, offset]
+            if use_pagination:
+                sql += " LIMIT %s OFFSET %s"
+                query_params = params + [per_page, offset]
+            else:
+                query_params = params
             cursor.execute(sql, tuple(query_params))
             orders = cursor.fetchall()
             
@@ -538,6 +552,8 @@ def monitoring_orders():
                     'total': 0,
                     'pages': 0,
                     'current_page': page,
+                    'paginated': use_pagination,
+                    'per_page': per_page,
                 }), 200
 
             order_ids = [order['id'] for order in orders]
@@ -618,13 +634,18 @@ def monitoring_orders():
                 if order.get('cash_amount') is not None: order['cash_amount'] = float(order['cash_amount'])
                 if order.get('card_amount') is not None: order['card_amount'] = float(order['card_amount'])
                 
-        pages = (total + per_page - 1) // per_page if total > 0 else 1
+        if use_pagination:
+            pages = (total + per_page - 1) // per_page if total > 0 else 1
+        else:
+            pages = 1 if total > 0 else 0
             
         return jsonify({
             'orders': orders,
             'total': total,
             'pages': pages,
             'current_page': page,
+            'paginated': use_pagination,
+            'per_page': per_page,
         }), 200
         
     finally:
