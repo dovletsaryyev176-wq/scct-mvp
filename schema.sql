@@ -1,6 +1,3 @@
-
--- Таблица Пользователи
-
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(150) NOT NULL,
@@ -11,14 +8,12 @@ CREATE TABLE users (
     is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
--- Таблица городов
 CREATE TABLE cities (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
--- Таблица районов
 CREATE TABLE districts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -30,8 +25,6 @@ CREATE TABLE districts (
         ON UPDATE CASCADE
 );
 
--- Таблица транспортов
-
 CREATE TABLE transports (
     id INT AUTO_INCREMENT PRIMARY KEY,
     number VARCHAR(20) NOT NULL UNIQUE,
@@ -39,7 +32,6 @@ CREATE TABLE transports (
     is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
--- Таблица профилей курьеров
 CREATE TABLE courier_profiles (
     user_id INT PRIMARY KEY,
     transport_id INT NULL,
@@ -54,7 +46,6 @@ CREATE TABLE courier_profiles (
         ON UPDATE CASCADE
 );
 
--- Таблица связи курьеров и районов (many-to-many)
 CREATE TABLE courier_districts (
     courier_id INT NOT NULL,
     district_id INT NOT NULL,
@@ -69,14 +60,12 @@ CREATE TABLE courier_districts (
         ON UPDATE CASCADE
 );
 
--- Таблица складов
 CREATE TABLE warehouses (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
--- Таблица адресов складов
 CREATE TABLE warehouse_addresses (
     id INT AUTO_INCREMENT PRIMARY KEY,
     warehouse_id INT NOT NULL,
@@ -84,7 +73,6 @@ CREATE TABLE warehouse_addresses (
     FOREIGN KEY (warehouse_id) REFERENCES warehouses(id) ON DELETE CASCADE
 );
 
--- Таблица телефонов складов
 CREATE TABLE warehouse_phones (
     id INT AUTO_INCREMENT PRIMARY KEY,
     warehouse_id INT NOT NULL,
@@ -92,14 +80,12 @@ CREATE TABLE warehouse_phones (
     FOREIGN KEY (warehouse_id) REFERENCES warehouses(id) ON DELETE CASCADE
 );
 
--- Таблица контрагентов
 CREATE TABLE counterparties (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
--- Таблица адресов контрагентов
 CREATE TABLE counterparty_addresses (
     id INT AUTO_INCREMENT PRIMARY KEY,
     counterparty_id INT NOT NULL,
@@ -107,7 +93,6 @@ CREATE TABLE counterparty_addresses (
     FOREIGN KEY (counterparty_id) REFERENCES counterparties(id) ON DELETE CASCADE
 );
 
--- Таблица телефонов контрагентов
 CREATE TABLE counterparty_phones (
     id INT AUTO_INCREMENT PRIMARY KEY,
     counterparty_id INT NOT NULL,
@@ -115,14 +100,12 @@ CREATE TABLE counterparty_phones (
     FOREIGN KEY (counterparty_id) REFERENCES counterparties(id) ON DELETE CASCADE
 );
 
--- Таблица типов цен
 CREATE TABLE price_types (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) UNIQUE NOT NULL,
     is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
--- Таблица клиентов
 CREATE TABLE clients (
     id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(255) NOT NULL,
@@ -132,7 +115,6 @@ CREATE TABLE clients (
     FOREIGN KEY (price_type_id) REFERENCES price_types(id)
 );
 
--- Таблица телефонов клиентов
 CREATE TABLE client_phones (
     id INT AUTO_INCREMENT PRIMARY KEY,
     client_id INT NOT NULL,
@@ -140,7 +122,6 @@ CREATE TABLE client_phones (
     FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
 );
 
--- Таблица адресов клиентов
 CREATE TABLE client_addresses (
     id INT AUTO_INCREMENT PRIMARY KEY,
     client_id INT NOT NULL,
@@ -152,7 +133,6 @@ CREATE TABLE client_addresses (
     FOREIGN KEY (district_id) REFERENCES districts(id)
 );
 
--- Таблица причин блокировки клиентов
 CREATE TABLE client_block_reasons (
     id INT AUTO_INCREMENT PRIMARY KEY,
     client_id INT NOT NULL,
@@ -161,7 +141,6 @@ CREATE TABLE client_block_reasons (
     FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
 );
 
--- Таблица локаций (склады, курьеры, контрагенты, клиенты)
 CREATE TABLE locations (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -176,21 +155,18 @@ CREATE TABLE locations (
     FOREIGN KEY (client_id) REFERENCES clients(id)
 );
 
--- Таблица типов продуктов
 CREATE TABLE product_types (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
--- Таблица брендов
 CREATE TABLE brands (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
--- Таблица товаров
 CREATE TABLE products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -203,21 +179,18 @@ CREATE TABLE products (
     FOREIGN KEY (brand_id) REFERENCES brands(id)
 );
 
--- Таблица состояний продуктов
 CREATE TABLE product_states (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
--- Таблица услуг
 CREATE TABLE services (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
--- Таблица правил услуги
 CREATE TABLE service_rules (
     id INT AUTO_INCREMENT PRIMARY KEY,
     service_id INT NOT NULL,
@@ -228,7 +201,6 @@ CREATE TABLE service_rules (
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
--- Таблица цен услуги
 CREATE TABLE service_prices (
     id INT AUTO_INCREMENT PRIMARY KEY,
     service_id INT NOT NULL,
@@ -240,7 +212,6 @@ CREATE TABLE service_prices (
     FOREIGN KEY (price_type_id) REFERENCES price_types(id)
 );
 
--- Таблица остатков на складах
 CREATE TABLE stocks (
     id INT AUTO_INCREMENT PRIMARY KEY,
     location_id INT NOT NULL,
@@ -253,7 +224,6 @@ CREATE TABLE stocks (
     UNIQUE KEY uq_stock_location_product_state (location_id, product_id, product_state_id)
 );
 
--- Таблица транзакций
 CREATE TABLE transactions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -272,7 +242,6 @@ CREATE TABLE transactions (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- Таблица скидок
 CREATE TABLE discounts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -289,7 +258,6 @@ CREATE TABLE discounts (
     is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
--- Промежуточная таблица связи M:N: discounts <-> services
 CREATE TABLE discount_services (
     discount_id INT NOT NULL,
     service_id INT NOT NULL,
@@ -298,7 +266,6 @@ CREATE TABLE discount_services (
     FOREIGN KEY (service_id) REFERENCES services(id)
 );
 
--- Промежуточная таблица связи M:N: discounts <-> cities
 CREATE TABLE discount_cities (
     discount_id INT NOT NULL,
     city_id INT NOT NULL,
@@ -307,7 +274,6 @@ CREATE TABLE discount_cities (
     FOREIGN KEY (city_id) REFERENCES cities(id)
 );
 
--- Промежуточная таблица связи M:N: discounts <-> price_types
 CREATE TABLE discount_price_types (
     discount_id INT NOT NULL,
     price_type_id INT NOT NULL,
@@ -316,7 +282,6 @@ CREATE TABLE discount_price_types (
     FOREIGN KEY (price_type_id) REFERENCES price_types(id) ON DELETE CASCADE
 );
 
--- Таблица заказов
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     
@@ -348,7 +313,6 @@ CREATE TABLE orders (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
 );
 
--- Таблица элементов заказа
 CREATE TABLE order_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
@@ -362,7 +326,6 @@ CREATE TABLE order_items (
     FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE RESTRICT
 );
 
--- Таблица скидок заказа
 CREATE TABLE order_discounts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
@@ -374,7 +337,6 @@ CREATE TABLE order_discounts (
     FOREIGN KEY (discount_id) REFERENCES discounts(id) ON DELETE CASCADE
 );
 
--- Таблица кредитного лимита клиента
 CREATE TABLE client_credits (
     id INT AUTO_INCREMENT PRIMARY KEY,
     client_id INT NOT NULL UNIQUE,
@@ -386,7 +348,6 @@ CREATE TABLE client_credits (
     FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE RESTRICT
 );
 
--- Таблица истории платежей по кредиту
 CREATE TABLE credit_payments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     client_credit_id INT NOT NULL,
@@ -400,7 +361,6 @@ CREATE TABLE credit_payments (
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL
 );
 
---Добавление колонки состояния продукта в услуги 
 ALTER TABLE service_rules ADD COLUMN product_state_id INT NOT NULL AFTER product_id;
 ALTER TABLE service_rules ADD CONSTRAINT fk_sr_product_state FOREIGN KEY (product_state_id) REFERENCES product_states(id);
 
@@ -423,7 +383,6 @@ CREATE TABLE courier_payments (
     FOREIGN KEY (accounter_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
--- Таблица истории SMS
 CREATE TABLE sms_history (
     id INT AUTO_INCREMENT PRIMARY KEY,
     sender_id INT NOT NULL,
