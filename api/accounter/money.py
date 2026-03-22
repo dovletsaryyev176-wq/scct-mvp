@@ -50,13 +50,14 @@ def get_couriers_debt():
             # При этом группируем по типу оплаты (cash / cash_and_card / card - хотя card по сути безнал онлайн)
             debt_sql = """
                 SELECT 
-                    courier_id,
-                    payment_type,
-                    SUM(cash_amount) as total_cash,
-                    SUM(card_amount) as total_card
-                FROM courier_payments
-                WHERE DATE(created_at) = %s AND is_handed_over = FALSE
-                GROUP BY courier_id, payment_type
+                    cp.courier_id,
+                    cp.payment_type,
+                    SUM(cp.cash_amount) as total_cash,
+                    SUM(cp.card_amount) as total_card
+                FROM courier_payments cp
+                JOIN orders o ON cp.order_id = o.id
+                WHERE o.delivery_date = %s AND cp.is_handed_over = FALSE
+                GROUP BY cp.courier_id, cp.payment_type
             """
             cursor.execute(debt_sql, (target_date,))
             debt_stats = cursor.fetchall()
@@ -169,7 +170,7 @@ def get_courier_payments_details(courier_id):
                 LEFT JOIN clients c ON o.client_id = c.id
                 LEFT JOIN client_phones cphone ON o.client_phone_id = cphone.id
                 LEFT JOIN client_addresses ca ON o.client_address_id = ca.id
-                WHERE cp.courier_id = %s AND DATE(cp.created_at) = %s
+                WHERE cp.courier_id = %s AND o.delivery_date = %s
                 ORDER BY cp.created_at DESC
             """
             cursor.execute(details_sql, (courier_id, target_date))
@@ -221,9 +222,10 @@ def accept_courier_handover(courier_id):
         with conn.cursor() as cursor:
             # Находим записи, которые еще не сданы
             find_sql = """
-                SELECT id 
-                FROM courier_payments 
-                WHERE courier_id = %s AND DATE(created_at) = %s AND is_handed_over = FALSE
+                SELECT cp.id 
+                FROM courier_payments cp
+                JOIN orders o ON cp.order_id = o.id
+                WHERE cp.courier_id = %s AND o.delivery_date = %s AND cp.is_handed_over = FALSE
                 FOR UPDATE
             """
             cursor.execute(find_sql, (courier_id, target_date))
@@ -283,10 +285,11 @@ def get_all_couriers_debt_summary():
         with conn.cursor() as cursor:
             sql = """
                 SELECT 
-                    SUM(cash_amount) as total_cash,
-                    SUM(card_amount) as total_card
-                FROM courier_payments
-                WHERE DATE(created_at) = %s AND is_handed_over = FALSE
+                    SUM(cp.cash_amount) as total_cash,
+                    SUM(cp.card_amount) as total_card
+                FROM courier_payments cp
+                JOIN orders o ON cp.order_id = o.id
+                WHERE o.delivery_date = %s AND cp.is_handed_over = FALSE
             """
             cursor.execute(sql, (target_date,))
             res = cursor.fetchone()
@@ -341,13 +344,14 @@ def export_couriers_debt_excel():
 
             debt_sql = """
                 SELECT 
-                    courier_id,
-                    payment_type,
-                    SUM(cash_amount) as total_cash,
-                    SUM(card_amount) as total_card
-                FROM courier_payments
-                WHERE DATE(created_at) = %s AND is_handed_over = FALSE
-                GROUP BY courier_id, payment_type
+                    cp.courier_id,
+                    cp.payment_type,
+                    SUM(cp.cash_amount) as total_cash,
+                    SUM(cp.card_amount) as total_card
+                FROM courier_payments cp
+                JOIN orders o ON cp.order_id = o.id
+                WHERE o.delivery_date = %s AND cp.is_handed_over = FALSE
+                GROUP BY cp.courier_id, cp.payment_type
             """
             cursor.execute(debt_sql, (target_date,))
             debt_stats = cursor.fetchall()

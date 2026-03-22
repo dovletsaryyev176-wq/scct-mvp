@@ -772,10 +772,11 @@ def get_daily_payments():
             # Общие суммы (наличность на руках, то есть только то, что еще не сдано)
             summary_sql = """
                 SELECT 
-                    SUM(cash_amount) as total_cash,
-                    SUM(card_amount) as total_card
-                FROM courier_payments
-                WHERE courier_id = %s AND DATE(created_at) = %s AND is_handed_over = FALSE
+                    SUM(cp.cash_amount) as total_cash,
+                    SUM(cp.card_amount) as total_card
+                FROM courier_payments cp
+                JOIN orders o ON cp.order_id = o.id
+                WHERE cp.courier_id = %s AND o.delivery_date = %s AND cp.is_handed_over = FALSE
             """
             cursor.execute(summary_sql, (target_courier_id, target_date))
             summary_res = cursor.fetchone()
@@ -815,7 +816,7 @@ def get_daily_payments():
                 LEFT JOIN client_addresses ca ON o.client_address_id = ca.id
                 LEFT JOIN cities city ON ca.city_id = city.id
                 LEFT JOIN districts dist ON ca.district_id = dist.id
-                WHERE cp.courier_id = %s AND DATE(cp.created_at) = %s
+                WHERE cp.courier_id = %s AND o.delivery_date = %s
                 ORDER BY cp.created_at DESC
             """
             cursor.execute(details_sql, (target_courier_id, target_date))
@@ -875,14 +876,26 @@ def get_payments_summary():
                 return jsonify({'error': 'У вас нет прав на просмотр отчетов других курьеров'}), 403
 
             # Общие суммы (деньги на руках, несданные)
-            summary_sql = """
-                SELECT 
-                    SUM(cash_amount) as total_cash,
-                    SUM(card_amount) as total_card
-                FROM courier_payments
-                WHERE courier_id = %s AND DATE(created_at) = %s AND is_handed_over = FALSE
-            """
-            cursor.execute(summary_sql, (target_courier_id, target_date))
+            if target_date_str:
+                summary_sql = """
+                    SELECT 
+                        SUM(cp.cash_amount) as total_cash,
+                        SUM(cp.card_amount) as total_card
+                    FROM courier_payments cp
+                    JOIN orders o ON cp.order_id = o.id
+                    WHERE cp.courier_id = %s AND o.delivery_date = %s AND cp.is_handed_over = FALSE
+                """
+                cursor.execute(summary_sql, (target_courier_id, target_date))
+            else: # If no specific date is provided, sum up all unhanded payments regardless of delivery_date
+                summary_sql = """
+                    SELECT 
+                        SUM(cash_amount) as total_cash,
+                        SUM(card_amount) as total_card
+                    FROM courier_payments
+                    WHERE courier_id = %s AND is_handed_over = FALSE
+                """
+                cursor.execute(summary_sql, (target_courier_id,))
+
             summary_res = cursor.fetchone()
             
             cash_sum = float(summary_res['total_cash']) if summary_res and summary_res['total_cash'] is not None else 0.0
