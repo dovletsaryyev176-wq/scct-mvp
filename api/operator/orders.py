@@ -515,6 +515,10 @@ def monitoring_orders():
                     c.full_name as client_name,
                     cp.phone as client_phone,
                     ca.address_line as client_address,
+                    s.name as street_name,
+                    ca.appartment,
+                    ca.entrance,
+                    ca.floor,
                     city.name as city_name,
                     dist.name as district_name,
                     o.delivery_time_type,
@@ -530,6 +534,7 @@ def monitoring_orders():
                 LEFT JOIN clients c ON o.client_id = c.id
                 LEFT JOIN client_phones cp ON o.client_phone_id = cp.id
                 LEFT JOIN client_addresses ca ON o.client_address_id = ca.id
+                LEFT JOIN streets s ON ca.street_id = s.id
                 LEFT JOIN cities city ON ca.city_id = city.id
                 LEFT JOIN districts dist ON ca.district_id = dist.id
                 LEFT JOIN users u ON o.user_id = u.id
@@ -684,6 +689,10 @@ def client_order_history(client_id):
                     o.delivery_date,
                     cp.phone as client_phone,
                     ca.address_line as client_address,
+                    s.name as street_name,
+                    ca.appartment,
+                    ca.entrance,
+                    ca.floor,
                     city.name as city_name,
                     dist.name as district_name,
                     o.payment_type,
@@ -697,6 +706,7 @@ def client_order_history(client_id):
                 FROM orders o
                 LEFT JOIN client_phones cp ON o.client_phone_id = cp.id
                 LEFT JOIN client_addresses ca ON o.client_address_id = ca.id
+                LEFT JOIN streets s ON ca.street_id = s.id
                 LEFT JOIN cities city ON ca.city_id = city.id
                 LEFT JOIN districts dist ON ca.district_id = dist.id
                 LEFT JOIN users u ON o.user_id = u.id
@@ -850,11 +860,13 @@ def search_client_by_phone_part():
             # Адреса
             cursor.execute(
                 f"""
-                SELECT ca.id, ca.client_id, ca.city_id, ca.district_id, ca.address_line,
-                       ct.name as city_name, d.name as district_name
+                SELECT ca.id, ca.client_id, ca.city_id, ca.district_id, ca.street_id, ca.address_line,
+                       ca.appartment, ca.entrance, ca.floor,
+                       ct.name as city_name, d.name as district_name, s.name as street_name
                 FROM client_addresses ca
                 LEFT JOIN cities ct ON ca.city_id = ct.id
                 LEFT JOIN districts d ON ca.district_id = d.id
+                LEFT JOIN streets s ON ca.street_id = s.id
                 WHERE ca.client_id IN ({format_strings})
                 """,
                 tuple(client_ids)
@@ -868,7 +880,12 @@ def search_client_by_phone_part():
                     "city_name": a['city_name'],
                     "district_id": a['district_id'],
                     "district_name": a['district_name'],
-                    "address_line": a['address_line']
+                    "street_id": a['street_id'],
+                    "street_name": a['street_name'],
+                    "address_line": a['address_line'],
+                    "appartment": a['appartment'],
+                    "entrance": a['entrance'],
+                    "floor": a['floor']
                 })
 
             clients_data = []
@@ -991,6 +1008,10 @@ def get_specific_courier_info(courier_id):
                     c.full_name as client_name,
                     cp.phone as client_phone,
                     ca.address_line as client_address,
+                    s.name as street_name,
+                    ca.appartment,
+                    ca.entrance,
+                    ca.floor,
                     city.name as city_name,
                     o.delivery_time_type,
                     o.delivery_time,
@@ -1005,6 +1026,7 @@ def get_specific_courier_info(courier_id):
                 LEFT JOIN clients c ON o.client_id = c.id
                 LEFT JOIN client_phones cp ON o.client_phone_id = cp.id
                 LEFT JOIN client_addresses ca ON o.client_address_id = ca.id
+                LEFT JOIN streets s ON ca.street_id = s.id
                 LEFT JOIN cities city ON ca.city_id = city.id
                 LEFT JOIN users u ON o.user_id = u.id
                 LEFT JOIN courier_profiles cprof ON o.courier_id = cprof.user_id

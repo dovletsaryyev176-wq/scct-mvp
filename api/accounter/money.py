@@ -163,6 +163,10 @@ def get_courier_payments_details(courier_id):
                     c.full_name as client_name,
                     cphone.phone as client_phone,
                     ca.address_line as client_address,
+                    s.name as street_name,
+                    ca.appartment,
+                    ca.entrance,
+                    ca.floor,
                     o.status as order_status,
                     o.total_amount as order_total_amount
                 FROM courier_payments cp
@@ -170,6 +174,7 @@ def get_courier_payments_details(courier_id):
                 LEFT JOIN clients c ON o.client_id = c.id
                 LEFT JOIN client_phones cphone ON o.client_phone_id = cphone.id
                 LEFT JOIN client_addresses ca ON o.client_address_id = ca.id
+                LEFT JOIN streets s ON ca.street_id = s.id
                 WHERE cp.courier_id = %s AND o.delivery_date = %s
                 ORDER BY cp.created_at DESC
             """

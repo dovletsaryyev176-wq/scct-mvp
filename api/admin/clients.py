@@ -14,6 +14,8 @@ def get_all_clients():
     price_type_id = request.args.get('price_type_id', type=int)
     city_id = request.args.get('city_id', type=int)
     district_id = request.args.get('district_id', type=int)
+    street_id = request.args.get('street_id', type=int)
+    phone = request.args.get('phone', type=str)
     
     conn = Db.get_connection()
     try:
@@ -21,6 +23,10 @@ def get_all_clients():
             
             where_clauses = []
             params = []
+            
+            if phone:
+                where_clauses.append("EXISTS (SELECT 1 FROM client_phones cp WHERE cp.client_id = c.id AND cp.phone LIKE %s)")
+                params.append(f"%{phone}%")
             
             if is_active is not None:
                 where_clauses.append("c.is_active = %s")
@@ -37,6 +43,10 @@ def get_all_clients():
             if district_id is not None:
                 where_clauses.append("EXISTS (SELECT 1 FROM client_addresses ca WHERE ca.client_id = c.id AND ca.district_id = %s)")
                 params.append(district_id)
+                
+            if street_id is not None:
+                where_clauses.append("EXISTS (SELECT 1 FROM client_addresses ca WHERE ca.client_id = c.id AND ca.street_id = %s)")
+                params.append(street_id)
 
             where_sql = ""
             if where_clauses:
@@ -81,11 +91,13 @@ def get_all_clients():
 
             
             cursor.execute(f"""
-                SELECT ca.id, ca.client_id, ca.city_id, ca.district_id, ca.address_line,
-                       ct.name as city_name, d.name as district_name
+                SELECT ca.id, ca.client_id, ca.city_id, ca.district_id, ca.street_id, ca.address_line,
+                       ca.appartment, ca.entrance, ca.floor,
+                       ct.name as city_name, d.name as district_name, s.name as street_name
                 FROM client_addresses ca
                 LEFT JOIN cities ct ON ca.city_id = ct.id
                 LEFT JOIN districts d ON ca.district_id = d.id
+                LEFT JOIN streets s ON ca.street_id = s.id
                 WHERE ca.client_id IN ({format_strings})
             """, tuple(client_ids))
             addresses_raw = cursor.fetchall()
@@ -97,7 +109,12 @@ def get_all_clients():
                     "city_name": a['city_name'],
                     "district_id": a['district_id'],
                     "district_name": a['district_name'],
-                    "address_line": a['address_line']
+                    "street_id": a['street_id'],
+                    "street_name": a['street_name'],
+                    "address_line": a['address_line'],
+                    "appartment": a['appartment'],
+                    "entrance": a['entrance'],
+                    "floor": a['floor']
                 })
 
             
@@ -187,11 +204,13 @@ def get_client(client_id):
 
 
             cursor.execute("""
-                SELECT ca.id, ca.city_id, ca.district_id, ca.address_line,
-                       ct.name as city_name, d.name as district_name
+                SELECT ca.id, ca.city_id, ca.district_id, ca.street_id, ca.address_line,
+                       ca.appartment, ca.entrance, ca.floor,
+                       ct.name as city_name, d.name as district_name, s.name as street_name
                 FROM client_addresses ca
                 LEFT JOIN cities ct ON ca.city_id = ct.id
                 LEFT JOIN districts d ON ca.district_id = d.id
+                LEFT JOIN streets s ON ca.street_id = s.id
                 WHERE ca.client_id = %s
             """, (client_id,))
             addresses = cursor.fetchall()
@@ -242,7 +261,12 @@ def get_client(client_id):
                         "city_name": a['city_name'],
                         "district_id": a['district_id'],
                         "district_name": a['district_name'],
-                        "address_line": a['address_line']
+                        "street_id": a['street_id'],
+                        "street_name": a['street_name'],
+                        "address_line": a['address_line'],
+                        "appartment": a['appartment'],
+                        "entrance": a['entrance'],
+                        "floor": a['floor']
                     } for a in addresses
                 ],
                 "credit": credit_info,
@@ -339,6 +363,10 @@ def add_phone(client_id):
     conn = Db.get_connection()
     try:
         with conn.cursor() as cursor:
+            cursor.execute("SELECT id FROM client_phones WHERE phone = %s", (phone,))
+            if cursor.fetchone():
+                return jsonify({"error": "Этот номер телефона уже существует в системе"}), 400
+
             cursor.execute("INSERT INTO client_phones (client_id, phone) VALUES (%s, %s)", (client_id, phone))
             phone_id = cursor.lastrowid
             conn.commit()
@@ -393,13 +421,19 @@ def add_address(client_id):
     try:
         with conn.cursor() as cursor:
             cursor.execute("""
-                INSERT INTO client_addresses (client_id, city_id, district_id, address_line) 
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO client_addresses (
+                    client_id, city_id, district_id, street_id, 
+                    address_line, appartment, entrance, floor
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """, (
                 client_id, 
                 data.get('city_id'), 
                 data.get('district_id'), 
-                data.get('address_line')
+                data.get('street_id'),
+                data.get('address_line', ''),
+                data.get('appartment', ''),
+                data.get('entrance', ''),
+                data.get('floor', '')
             ))
             address_id = cursor.lastrowid
             conn.commit()
@@ -438,11 +472,13 @@ def get_client_addresses(client_id):
                 return jsonify({"error": "Клиент не найден"}), 404
 
             cursor.execute("""
-                SELECT ca.id, ca.city_id, ca.district_id, ca.address_line,
-                       ct.name as city_name, d.name as district_name
+                SELECT ca.id, ca.city_id, ca.district_id, ca.street_id, ca.address_line,
+                       ca.appartment, ca.entrance, ca.floor,
+                       ct.name as city_name, d.name as district_name, s.name as street_name
                 FROM client_addresses ca
                 LEFT JOIN cities ct ON ca.city_id = ct.id
                 LEFT JOIN districts d ON ca.district_id = d.id
+                LEFT JOIN streets s ON ca.street_id = s.id
                 WHERE ca.client_id = %s
             """, (client_id,))
             addresses = cursor.fetchall()
@@ -454,7 +490,12 @@ def get_client_addresses(client_id):
                     "city_name": a['city_name'] or "Неизвестно",
                     "district_id": a['district_id'],
                     "district_name": a['district_name'] or "Неизвестно",
-                    "address_line": a['address_line']
+                    "street_id": a['street_id'],
+                    "street_name": a['street_name'] or "Неизвестно",
+                    "address_line": a['address_line'],
+                    "appartment": a['appartment'],
+                    "entrance": a['entrance'],
+                    "floor": a['floor']
                 } for a in addresses
             ]
             

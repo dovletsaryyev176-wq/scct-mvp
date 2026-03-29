@@ -8,6 +8,12 @@ CREATE TABLE users (
     is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
+CREATE TABLE price_types (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE
+);
+
 CREATE TABLE cities (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
@@ -23,6 +29,59 @@ CREATE TABLE districts (
         FOREIGN KEY (city_id) REFERENCES cities(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
+);
+
+CREATE TABLE clients (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(255) NOT NULL,
+    price_type_id INT NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (price_type_id) REFERENCES price_types(id)
+);
+
+CREATE TABLE client_phones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id INT NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE client_block_reasons (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id INT NOT NULL,
+    reason TEXT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE streets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    city_id INT NOT NULL,
+    CONSTRAINT fk_street_city
+        FOREIGN KEY (city_id) REFERENCES cities(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE client_addresses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id INT NOT NULL,
+    city_id INT NOT NULL,
+    district_id INT NOT NULL,
+    street_id INT NOT NULL,
+    address_line TEXT NOT NULL,
+    appartment TEXT NOT NULL,
+    entrance TEXT NOT NULL,
+    floor TEXT NOT NULL,
+    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
+    FOREIGN KEY (city_id) REFERENCES cities(id),
+    FOREIGN KEY (district_id) REFERENCES districts(id),
+    FOREIGN KEY (street_id) REFERENCES streets(id)
 );
 
 CREATE TABLE transports (
@@ -98,47 +157,6 @@ CREATE TABLE counterparty_phones (
     counterparty_id INT NOT NULL,
     phone VARCHAR(30) NOT NULL,
     FOREIGN KEY (counterparty_id) REFERENCES counterparties(id) ON DELETE CASCADE
-);
-
-CREATE TABLE price_types (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) UNIQUE NOT NULL,
-    is_active BOOLEAN NOT NULL DEFAULT TRUE
-);
-
-CREATE TABLE clients (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    full_name VARCHAR(255) NOT NULL,
-    price_type_id INT NOT NULL,
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (price_type_id) REFERENCES price_types(id)
-);
-
-CREATE TABLE client_phones (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    client_id INT NOT NULL,
-    phone VARCHAR(20) NOT NULL,
-    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
-);
-
-CREATE TABLE client_addresses (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    client_id INT NOT NULL,
-    city_id INT NOT NULL,
-    district_id INT NOT NULL,
-    address_line TEXT NOT NULL,
-    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
-    FOREIGN KEY (city_id) REFERENCES cities(id),
-    FOREIGN KEY (district_id) REFERENCES districts(id)
-);
-
-CREATE TABLE client_block_reasons (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    client_id INT NOT NULL,
-    reason TEXT NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
 );
 
 CREATE TABLE locations (
@@ -368,7 +386,7 @@ CREATE TABLE courier_payments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     courier_id INT NOT NULL,
     order_id INT NOT NULL UNIQUE,
-    payment_type VARCHAR(50) NOT NULL, -- тип оплаты по итогу (cash, card, cash_and_card)
+    payment_type VARCHAR(50) NOT NULL,
     cash_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
     card_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

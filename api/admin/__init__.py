@@ -15,6 +15,7 @@ from . import product_types
 from . import products
 from . import services
 from . import sms
+from . import streets
 from . import transports
 from . import users
 from . import warehouses

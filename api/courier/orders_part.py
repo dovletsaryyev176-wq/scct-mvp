@@ -474,6 +474,10 @@ def get_courier_todays_orders():
                 c.full_name as client_name,
                 cp.phone as client_phone,
                 ca.address_line as client_address,
+                s.name as street_name,
+                ca.appartment,
+                ca.entrance,
+                ca.floor,
                 city.name as city_name,
                 dist.name as district_name,
                 o.delivery_time_type,
@@ -488,6 +492,7 @@ def get_courier_todays_orders():
             LEFT JOIN clients c ON o.client_id = c.id
             LEFT JOIN client_phones cp ON o.client_phone_id = cp.id
             LEFT JOIN client_addresses ca ON o.client_address_id = ca.id
+            LEFT JOIN streets s ON ca.street_id = s.id
             LEFT JOIN cities city ON ca.city_id = city.id
             LEFT JOIN districts dist ON ca.district_id = dist.id
             WHERE o.courier_id = %s AND o.delivery_date = %s
@@ -570,6 +575,10 @@ def get_courier_single_order(order_id):
                     c.full_name as client_name,
                     cp.phone as client_phone,
                     ca.address_line as client_address,
+                    s.name as street_name,
+                    ca.appartment,
+                    ca.entrance,
+                    ca.floor,
                     city.name as city_name,
                     dist.name as district_name,
                     o.delivery_date,
@@ -586,6 +595,7 @@ def get_courier_single_order(order_id):
                 LEFT JOIN clients c ON o.client_id = c.id
                 LEFT JOIN client_phones cp ON o.client_phone_id = cp.id
                 LEFT JOIN client_addresses ca ON o.client_address_id = ca.id
+                LEFT JOIN streets s ON ca.street_id = s.id
                 LEFT JOIN cities city ON ca.city_id = city.id
                 LEFT JOIN districts dist ON ca.district_id = dist.id
                 WHERE o.id = %s
@@ -803,6 +813,10 @@ def get_daily_payments():
                     c.full_name as client_name,
                     cphone.phone as client_phone,
                     ca.address_line as client_address,
+                    s.name as street_name,
+                    ca.appartment,
+                    ca.entrance,
+                    ca.floor,
                     city.name as city_name,
                     dist.name as district_name,
                     o.delivery_time_type,
@@ -814,6 +828,7 @@ def get_daily_payments():
                 LEFT JOIN clients c ON o.client_id = c.id
                 LEFT JOIN client_phones cphone ON o.client_phone_id = cphone.id
                 LEFT JOIN client_addresses ca ON o.client_address_id = ca.id
+                LEFT JOIN streets s ON ca.street_id = s.id
                 LEFT JOIN cities city ON ca.city_id = city.id
                 LEFT JOIN districts dist ON ca.district_id = dist.id
                 WHERE cp.courier_id = %s AND o.delivery_date = %s
