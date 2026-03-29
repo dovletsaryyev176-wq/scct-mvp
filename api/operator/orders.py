@@ -165,7 +165,7 @@ def _calculate_order_price_internal(cursor, client_id, client_city_id, client_pr
 # Расчет стоимости заказа (без создания)
 # -------------------------------------------------------------
 @operator_bp.route('/orders/calculate', methods=['POST'])
-@roles_required('admin', 'operator')
+@roles_required('admin', 'operator','headoperator')
 def calculate_order_price():
     data = request.get_json()
     
@@ -229,7 +229,7 @@ def calculate_order_price():
 # Создание заказа
 # -------------------------------------------------------------
 @operator_bp.route('/orders', methods=['POST'])
-@roles_required('admin', 'operator')
+@roles_required('admin', 'operator','headoperator')
 def create_order():
     data = request.get_json()
     
@@ -454,7 +454,7 @@ def create_order():
 # Мониторинг заказов
 # -------------------------------------------------------------
 @operator_bp.route('/monitoring', methods=['GET'])
-@roles_required('admin', 'operator', 'courier', 'warehouse')
+@roles_required('admin', 'operator', 'courier', 'warehouse','headoperator')
 def monitoring_orders():
     lang = request.args.get('lang', 'ru')
     # Пагинация только если явно передан per_page > 0. Иначе — все заказы (без LIMIT).
@@ -660,7 +660,7 @@ def monitoring_orders():
 # История заказов конкретного клиента
 # -------------------------------------------------------------
 @operator_bp.route('/clients/<int:client_id>/orders', methods=['GET'])
-@roles_required('admin', 'operator', 'courier', 'warehouse')
+@roles_required('admin', 'operator', 'courier', 'warehouse','headoperator')
 def client_order_history(client_id):
     lang = request.args.get('lang', 'ru')
     page = request.args.get('page', 1, type=int)
@@ -807,7 +807,7 @@ def client_order_history(client_id):
 # Поиск клиента по части номера телефона
 # -------------------------------------------------------------
 @operator_bp.route('/clients/search-by-phone', methods=['GET'])
-@roles_required('admin', 'operator', 'courier', 'warehouse')
+@roles_required('admin', 'operator', 'courier', 'warehouse','headoperator')
 def search_client_by_phone_part():
     phone_part = request.args.get('phone_part', type=str) or request.args.get('phone', type=str)
 
@@ -914,7 +914,7 @@ def search_client_by_phone_part():
 # Получение информации о курьерах на определенную дату
 # -------------------------------------------------------------
 @operator_bp.route('/couriers_info', methods=['GET'])
-@roles_required('admin', 'operator')
+@roles_required('admin', 'operator','headoperator')
 def get_couriers_info():
     date_str = request.args.get('date', type=str)
     
@@ -969,7 +969,7 @@ def get_couriers_info():
 # Мониторинг заказов конкретного курьера
 # -------------------------------------------------------------
 @operator_bp.route('/specific_courier_info/<int:courier_id>', methods=['GET'])
-@roles_required('admin', 'operator', 'courier')
+@roles_required('admin', 'operator', 'courier','headoperator')
 def get_specific_courier_info(courier_id):
     lang = request.args.get('lang', 'ru')
     date_str = request.args.get('date', type=str)
