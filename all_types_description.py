@@ -20,12 +20,14 @@ class OrderStatuses:
     IN_PROGRESS = 'in_progress'        # В пути
     DELIVERED = 'delivered'            # Доставлено
     CANCELLED = 'cancelled'            # Отменено
+    IN_PLACE='in_place'                # На месте
 
     CHOICES = [
         PENDING,
         IN_PROGRESS,
         DELIVERED,
         CANCELLED,
+        IN_PLACE,
     ]
 
     LABELS = {
@@ -33,6 +35,7 @@ class OrderStatuses:
         IN_PROGRESS: {'ru': 'В пути', 'tm': 'Ýolda'},
         DELIVERED: {'ru': 'Доставлено', 'tm': 'Eltildi'},
         CANCELLED: {'ru': 'Отменено', 'tm': 'Ýatyryldy'},
+        IN_PLACE: {'ru': 'На месте', 'tm': 'Ýerinde'},
     }
 
 class PaymentTypes:
