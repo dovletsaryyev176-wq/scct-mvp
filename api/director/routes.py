@@ -8,7 +8,7 @@ from decorators import roles_required
 # 1. Суммарное количество клиентов с распределением по типам цен
 # -------------------------------------------------------------
 @director_bp.route('/clients/by-price-type', methods=['GET'])
-@roles_required('admin', 'director')
+@roles_required('admin', 'director','sales')
 def get_clients_by_price_type():
     conn = Db.get_connection()
     try:
@@ -31,7 +31,7 @@ def get_clients_by_price_type():
 # 2. Суммарное количество заблокированного транспорта
 # -------------------------------------------------------------
 @director_bp.route('/transports/blocked', methods=['GET'])
-@roles_required('admin', 'director')
+@roles_required('admin', 'director','sales')
 def get_blocked_transports():
     conn = Db.get_connection()
     try:
@@ -49,7 +49,7 @@ def get_blocked_transports():
 # 3. Суммарное количество клиентов по районам городов
 # -------------------------------------------------------------
 @director_bp.route('/clients/by-district', methods=['GET'])
-@roles_required('admin', 'director')
+@roles_required('admin', 'director','sales')
 def get_clients_by_district():
     conn = Db.get_connection()
     try:
@@ -80,7 +80,7 @@ def get_clients_by_district():
 # 4. Информация о принятых деньгах бухгалтером
 # -------------------------------------------------------------
 @director_bp.route('/money/accepted', methods=['GET'])
-@roles_required('admin', 'director')
+@roles_required('admin', 'director','sales')
 def get_accepted_money():
     target_date_str = request.args.get('date')
     if target_date_str:
@@ -122,7 +122,7 @@ def get_accepted_money():
 # 5. Суммарное количество заказов с распределением по статусу
 # -------------------------------------------------------------
 @director_bp.route('/orders/by-status', methods=['GET'])
-@roles_required('admin', 'director')
+@roles_required('admin', 'director','sales')
 def get_orders_by_status():
     target_date_str = request.args.get('date')
     if target_date_str:
@@ -161,7 +161,7 @@ def get_orders_by_status():
 # 6. Суммарный доход за каждый месяц текущего года
 # -------------------------------------------------------------
 @director_bp.route('/money/monthly-income-yearly', methods=['GET'])
-@roles_required('admin', 'director')
+@roles_required('admin', 'director','sales')
 def get_yearly_monthly_income():
     year_str = request.args.get('year')
     if year_str:
@@ -216,7 +216,7 @@ def get_yearly_monthly_income():
 # 7. Суммарный доход за текущий месяц (с фильтром по месяцу и году)
 # -------------------------------------------------------------
 @director_bp.route('/money/monthly-income', methods=['GET'])
-@roles_required('admin', 'director')
+@roles_required('admin', 'director','sales')
 def get_monthly_income():
     month_str = request.args.get('month')
     year_str = request.args.get('year')

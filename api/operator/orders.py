@@ -454,7 +454,7 @@ def create_order():
 # Мониторинг заказов
 # -------------------------------------------------------------
 @operator_bp.route('/monitoring', methods=['GET'])
-@roles_required('admin', 'operator', 'courier', 'warehouse','headoperator')
+@roles_required('admin', 'operator', 'courier', 'warehouse','headoperator','sales')
 def monitoring_orders():
     lang = request.args.get('lang', 'ru')
     # Пагинация только если явно передан per_page > 0. Иначе — все заказы (без LIMIT).
@@ -660,7 +660,7 @@ def monitoring_orders():
 # История заказов конкретного клиента
 # -------------------------------------------------------------
 @operator_bp.route('/clients/<int:client_id>/orders', methods=['GET'])
-@roles_required('admin', 'operator', 'courier', 'warehouse','headoperator')
+@roles_required('admin', 'operator', 'courier', 'warehouse','headoperator','sales')
 def client_order_history(client_id):
     lang = request.args.get('lang', 'ru')
     page = request.args.get('page', 1, type=int)
@@ -807,7 +807,7 @@ def client_order_history(client_id):
 # Поиск клиента по части номера телефона
 # -------------------------------------------------------------
 @operator_bp.route('/clients/search-by-phone', methods=['GET'])
-@roles_required('admin', 'operator', 'courier', 'warehouse','headoperator')
+@roles_required('admin', 'operator', 'courier', 'warehouse','headoperator','sales')
 def search_client_by_phone_part():
     phone_part = request.args.get('phone_part', type=str) or request.args.get('phone', type=str)
 
@@ -914,7 +914,7 @@ def search_client_by_phone_part():
 # Получение информации о курьерах на определенную дату
 # -------------------------------------------------------------
 @operator_bp.route('/couriers_info', methods=['GET'])
-@roles_required('admin', 'operator','headoperator')
+@roles_required('admin', 'operator','headoperator','sales')
 def get_couriers_info():
     date_str = request.args.get('date', type=str)
     
@@ -969,7 +969,7 @@ def get_couriers_info():
 # Мониторинг заказов конкретного курьера
 # -------------------------------------------------------------
 @operator_bp.route('/specific_courier_info/<int:courier_id>', methods=['GET'])
-@roles_required('admin', 'operator', 'courier','headoperator')
+@roles_required('admin', 'operator', 'courier','headoperator','sales')
 def get_specific_courier_info(courier_id):
     lang = request.args.get('lang', 'ru')
     date_str = request.args.get('date', type=str)
