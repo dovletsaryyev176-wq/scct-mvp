@@ -629,13 +629,21 @@ def monitoring_orders():
                 order_items = items_by_order.get(order['id'], [])
                 order_discounts = discounts_by_order.get(order['id'], [])
                 
-                # Теперь мы не вычисляем сумму заново, а отдаем ту, что сохранилась на момент создания (чтобы цены не "поплыли").
-                # Суммы отдельно по услугам и скидкам остаются историческими, так как они копируются построчно в order_items и order_discounts
+                # Превращаем Decimal в float для JSON в services
+                for svc in order_items:
+                    if svc.get('quantity') is not None: svc['quantity'] = float(svc['quantity'])
+                    if svc.get('price') is not None: svc['price'] = float(svc['price'])
+                    if svc.get('total_price') is not None: svc['total_price'] = float(svc['total_price'])
+                
+                # Превращаем Decimal в float для JSON в discounts
+                for dc in order_discounts:
+                    if dc.get('discount_amount') is not None: dc['discount_amount'] = float(dc['discount_amount'])
+                
                 order['services'] = order_items
                 order['discounts'] = order_discounts
                 
                 # Превращаем Decimal в float для JSON
-                order['total_amount'] = float(order['total_amount'])
+                order['total_amount'] = float(order['total_amount']) if order.get('total_amount') is not None else 0.0
                 if order.get('cash_amount') is not None: order['cash_amount'] = float(order['cash_amount'])
                 if order.get('card_amount') is not None: order['card_amount'] = float(order['card_amount'])
                 
@@ -652,7 +660,8 @@ def monitoring_orders():
             'paginated': use_pagination,
             'per_page': per_page,
         }), 200
-        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
 
