@@ -1138,3 +1138,396 @@ def get_specific_courier_info(courier_id):
         
     finally:
         conn.close()
+
+# -------------------------------------------------------------
+# Обновление заказа
+# -------------------------------------------------------------
+@operator_bp.route('/orders/<int:order_id>', methods=['PUT'])
+@roles_required('admin', 'operator', 'headoperator')
+def update_order(order_id):
+    """
+    Обновление заказа. Все поля необязательные (частичное обновление).
+
+    Поддерживаемые поля в теле запроса (JSON):
+      - client_address_id   : int   — новый адрес клиента
+      - client_phone_id     : int   — новый телефон клиента
+      - courier_id          : int|null — назначить/сбросить курьера
+      - delivery_date       : str   — дата доставки (YYYY-MM-DD)
+      - delivery_time_type  : str   — тип времени доставки
+      - delivery_time       : str|null — точное время (HH:MM:SS)
+      - payment_type        : str   — тип оплаты
+      - cash_amount         : float|null
+      - card_amount         : float|null
+      - note                : str|null
+      - status              : str   — статус заказа
+      - items               : list  — полностью заменить позиции заказа
+                                      [{service_id, quantity}, ...]
+    """
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Тело запроса отсутствует или не является JSON'}), 400
+
+    conn = Db.get_connection()
+    try:
+        with conn.cursor() as cursor:
+            # ── 1. Загрузить текущий заказ ──────────────────────────────────
+            cursor.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
+            order = cursor.fetchone()
+            if not order:
+                return jsonify({'error': 'Заказ не найден'}), 404
+
+            # ── 2. Валидация и подготовка изменяемых полей ─────────────────
+            update_fields = {}
+
+            # delivery_date
+            if 'delivery_date' in data:
+                try:
+                    delivery_date = datetime.strptime(data['delivery_date'], '%Y-%m-%d').date()
+                except ValueError:
+                    return jsonify({'error': 'Неправильный формат delivery_date. Используйте YYYY-MM-DD'}), 400
+                update_fields['delivery_date'] = delivery_date
+
+            # delivery_time_type
+            if 'delivery_time_type' in data:
+                if data['delivery_time_type'] not in DeliveryTimes.CHOICES:
+                    return jsonify({'error': f"Недопустимый delivery_time_type. Допустимые: {', '.join(DeliveryTimes.CHOICES)}"}), 400
+                update_fields['delivery_time_type'] = data['delivery_time_type']
+
+            # delivery_time
+            if 'delivery_time' in data:
+                if data['delivery_time'] is None:
+                    update_fields['delivery_time'] = None
+                else:
+                    try:
+                        update_fields['delivery_time'] = datetime.strptime(data['delivery_time'], '%H:%M:%S').time()
+                    except ValueError:
+                        return jsonify({'error': 'Неправильный формат delivery_time. Используйте HH:MM:SS'}), 400
+
+            # payment_type
+            if 'payment_type' in data:
+                if data['payment_type'] not in PaymentTypes.CHOICES:
+                    return jsonify({'error': f"Недопустимый payment_type. Допустимые: {', '.join(PaymentTypes.CHOICES)}"}), 400
+                update_fields['payment_type'] = data['payment_type']
+
+            # status
+            if 'status' in data:
+                if data['status'] not in OrderStatuses.CHOICES:
+                    return jsonify({'error': f"Недопустимый статус. Допустимые: {', '.join(OrderStatuses.CHOICES)}"}), 400
+                update_fields['status'] = data['status']
+
+            # note
+            if 'note' in data:
+                update_fields['note'] = data['note']
+
+            # cash_amount / card_amount
+            if 'cash_amount' in data:
+                update_fields['cash_amount'] = data['cash_amount']
+            if 'card_amount' in data:
+                update_fields['card_amount'] = data['card_amount']
+
+            # courier_id — проверить, что курьер существует
+            if 'courier_id' in data:
+                if data['courier_id'] is None:
+                    update_fields['courier_id'] = None
+                else:
+                    cursor.execute("SELECT user_id FROM courier_profiles WHERE user_id = %s", (data['courier_id'],))
+                    if not cursor.fetchone():
+                        return jsonify({'error': 'Профиль курьера не найден'}), 404
+                    update_fields['courier_id'] = data['courier_id']
+
+            # client_address_id — проверить принадлежность клиенту
+            if 'client_address_id' in data:
+                cursor.execute(
+                    "SELECT id FROM client_addresses WHERE id = %s AND client_id = %s",
+                    (data['client_address_id'], order['client_id'])
+                )
+                if not cursor.fetchone():
+                    return jsonify({'error': 'Адрес не найден или не принадлежит клиенту заказа'}), 404
+                update_fields['client_address_id'] = data['client_address_id']
+
+            # client_phone_id — проверить принадлежность клиенту
+            if 'client_phone_id' in data:
+                cursor.execute(
+                    "SELECT id FROM client_phones WHERE id = %s AND client_id = %s",
+                    (data['client_phone_id'], order['client_id'])
+                )
+                if not cursor.fetchone():
+                    return jsonify({'error': 'Телефон не найден или не принадлежит клиенту заказа'}), 404
+                update_fields['client_phone_id'] = data['client_phone_id']
+
+            # ── 3. Пересчёт суммы, если переданы items ─────────────────────
+            new_items_calculated = None
+            new_applied_discounts = None
+            new_final_price = None
+            old_final_price = Decimal(str(order['total_amount'] or 0))
+
+            if 'items' in data:
+                if not data['items'] or len(data['items']) == 0:
+                    return jsonify({'error': 'Список позиций (items) не может быть пустым'}), 400
+
+                # Получить city_id адреса (текущего или нового)
+                address_id = update_fields.get('client_address_id', order['client_address_id'])
+                cursor.execute("SELECT city_id FROM client_addresses WHERE id = %s", (address_id,))
+                addr_row = cursor.fetchone()
+                if not addr_row:
+                    return jsonify({'error': 'Адрес клиента не найден'}), 404
+                client_city_id = addr_row['city_id']
+
+                cursor.execute("SELECT price_type_id FROM clients WHERE id = %s", (order['client_id'],))
+                client_row = cursor.fetchone()
+                client_price_type_id = client_row['price_type_id']
+
+                try:
+                    calc_result = _calculate_order_price_internal(
+                        cursor,
+                        order['client_id'],
+                        client_city_id,
+                        client_price_type_id,
+                        data['items'],
+                        for_creation=False
+                    )
+                except ValueError as ve:
+                    return jsonify({'error': str(ve)}), 400
+
+                new_items_calculated = calc_result['order_items_calculated']
+                new_applied_discounts = calc_result['applied_discounts']
+                new_final_price = calc_result['final_order_price']
+                update_fields['total_amount'] = new_final_price
+
+                # Пересчитать cash/card если не переданы явно
+                payment_type = update_fields.get('payment_type', order['payment_type'])
+                if 'cash_amount' not in data and 'card_amount' not in data:
+                    if payment_type == 'cash':
+                        update_fields['cash_amount'] = new_final_price
+                        update_fields['card_amount'] = Decimal('0.0')
+                    elif payment_type == 'card':
+                        update_fields['cash_amount'] = Decimal('0.0')
+                        update_fields['card_amount'] = new_final_price
+                    else:
+                        update_fields['cash_amount'] = Decimal('0.0')
+                        update_fields['card_amount'] = Decimal('0.0')
+
+            # ── 4. Выполнить UPDATE orders ──────────────────────────────────
+            if update_fields:
+                set_clauses = ', '.join(f"{col} = %s" for col in update_fields.keys())
+                set_values = list(update_fields.values())
+                cursor.execute(
+                    f"UPDATE orders SET {set_clauses} WHERE id = %s",
+                    set_values + [order_id]
+                )
+
+            # ── 5. Обновить позиции заказа (если переданы) ─────────────────
+            if new_items_calculated is not None:
+                # Удалить старые скидки и обновить usage_count
+                cursor.execute("SELECT discount_id FROM order_discounts WHERE order_id = %s", (order_id,))
+                old_discount_ids = [r['discount_id'] for r in cursor.fetchall()]
+                for did in old_discount_ids:
+                    cursor.execute(
+                        "UPDATE discounts SET usage_count = GREATEST(usage_count - 1, 0) WHERE id = %s", (did,)
+                    )
+                cursor.execute("DELETE FROM order_discounts WHERE order_id = %s", (order_id,))
+
+                # Удалить старые позиции
+                cursor.execute("DELETE FROM order_items WHERE order_id = %s", (order_id,))
+
+                # Вставить новые позиции
+                items_to_insert = [
+                    (order_id, it['service_id'], it['quantity'], it['price'], it['total_price'])
+                    for it in new_items_calculated
+                ]
+                if items_to_insert:
+                    cursor.executemany(
+                        "INSERT INTO order_items (order_id, service_id, quantity, price, total_price) VALUES (%s, %s, %s, %s, %s)",
+                        items_to_insert
+                    )
+
+                # Вставить новые скидки и увеличить usage_count
+                for cd in new_applied_discounts:
+                    cursor.execute(
+                        "INSERT INTO order_discounts (order_id, discount_id, discount_amount) VALUES (%s, %s, %s)",
+                        (order_id, cd['id'], cd['amount'])
+                    )
+                    cursor.execute(
+                        "UPDATE discounts SET usage_count = usage_count + 1 WHERE id = %s", (cd['id'],)
+                    )
+
+            # ── 6. Корректировка кредита при изменении суммы ───────────────
+            current_payment_type = update_fields.get('payment_type', order['payment_type'])
+            old_payment_type = order['payment_type']
+
+            if new_final_price is not None or current_payment_type != old_payment_type:
+                effective_new_price = new_final_price if new_final_price is not None else old_final_price
+
+                # Если был кредит — отменить старое списание
+                if old_payment_type == PaymentTypes.CREDIT and old_final_price > 0:
+                    cursor.execute(
+                        "SELECT id FROM client_credits WHERE client_id = %s", (order['client_id'],)
+                    )
+                    credit_row = cursor.fetchone()
+                    if credit_row:
+                        cursor.execute(
+                            "UPDATE client_credits SET used_credit = GREATEST(used_credit - %s, 0) WHERE id = %s",
+                            (old_final_price, credit_row['id'])
+                        )
+                        cursor.execute(
+                            "DELETE FROM credit_payments WHERE order_id = %s AND payment_type = 'charge'",
+                            (order_id,)
+                        )
+
+                # Если теперь кредит — применить новое списание
+                if current_payment_type == PaymentTypes.CREDIT and effective_new_price > 0:
+                    cursor.execute(
+                        "SELECT id, credit_limit, used_credit FROM client_credits WHERE client_id = %s FOR UPDATE",
+                        (order['client_id'],)
+                    )
+                    credit_row = cursor.fetchone()
+                    if not credit_row:
+                        cursor.execute(
+                            "INSERT INTO client_credits (client_id, credit_limit, used_credit) VALUES (%s, 0, 0)",
+                            (order['client_id'],)
+                        )
+                        credit_id = cursor.lastrowid
+                        available = Decimal('0.0')
+                        used = Decimal('0.0')
+                    else:
+                        credit_id = credit_row['id']
+                        limit = Decimal(str(credit_row.get('credit_limit') or 0))
+                        used = Decimal(str(credit_row.get('used_credit') or 0))
+                        available = limit - used
+
+                    if available < effective_new_price:
+                        conn.rollback()
+                        return jsonify({
+                            'error': 'Недостаточно кредитного лимита',
+                            'available_credit': float(available),
+                            'required_amount': float(effective_new_price)
+                        }), 400
+
+                    cursor.execute(
+                        "UPDATE client_credits SET used_credit = used_credit + %s WHERE id = %s",
+                        (effective_new_price, credit_id)
+                    )
+                    cursor.execute(
+                        "INSERT INTO credit_payments (client_credit_id, order_id, payment_type, amount, description) VALUES (%s, %s, %s, %s, %s)",
+                        (credit_id, order_id, 'charge', effective_new_price, f'Списание за заказ #{order_id} (обновлён)')
+                    )
+
+            # ── 6b. Возврат кредита при отмене заказа ──────────────────────
+            new_status = update_fields.get('status')
+            old_status = order['status']
+            effective_payment_type = update_fields.get('payment_type', order['payment_type'])
+
+            if (new_status == OrderStatuses.CANCELLED
+                    and old_status != OrderStatuses.CANCELLED
+                    and effective_payment_type == PaymentTypes.CREDIT
+                    and old_final_price > 0):
+                cursor.execute(
+                    "SELECT id FROM client_credits WHERE client_id = %s", (order['client_id'],)
+                )
+                credit_row = cursor.fetchone()
+                if credit_row:
+                    cursor.execute(
+                        "UPDATE client_credits SET used_credit = GREATEST(used_credit - %s, 0) WHERE id = %s",
+                        (old_final_price, credit_row['id'])
+                    )
+                    cursor.execute(
+                        """INSERT INTO credit_payments (client_credit_id, order_id, payment_type, amount, description)
+                           VALUES (%s, %s, %s, %s, %s)""",
+                        (credit_row['id'], order_id, 'refund', old_final_price,
+                         f'Возврат кредита по отменённому заказу #{order_id}')
+                    )
+
+            conn.commit()
+
+            # ── 7. Вернуть обновлённый заказ ───────────────────────────────
+            cursor.execute("""
+                SELECT
+                    o.id,
+                    o.client_id,
+                    o.created_at,
+                    o.delivery_date,
+                    c.full_name as client_name,
+                    cp.phone as client_phone,
+                    ca.address_line as client_address,
+                    s.name as street_name,
+                    ca.appartment,
+                    ca.entrance,
+                    ca.floor,
+                    city.name as city_name,
+                    dist.id as district_id,
+                    dist.name as district_name,
+                    o.delivery_time_type,
+                    o.delivery_time,
+                    o.payment_type,
+                    o.status,
+                    o.total_amount,
+                    o.cash_amount,
+                    o.card_amount,
+                    o.note,
+                    o.courier_id,
+                    u.full_name as operator_name,
+                    cour_u.full_name as courier_name
+                FROM orders o
+                LEFT JOIN clients c ON o.client_id = c.id
+                LEFT JOIN client_phones cp ON o.client_phone_id = cp.id
+                LEFT JOIN client_addresses ca ON o.client_address_id = ca.id
+                LEFT JOIN streets s ON ca.street_id = s.id
+                LEFT JOIN cities city ON ca.city_id = city.id
+                LEFT JOIN districts dist ON ca.district_id = dist.id
+                LEFT JOIN users u ON o.user_id = u.id
+                LEFT JOIN courier_profiles cprof ON o.courier_id = cprof.user_id
+                LEFT JOIN users cour_u ON cprof.user_id = cour_u.id
+                WHERE o.id = %s
+            """, (order_id,))
+            updated_order = cursor.fetchone()
+
+            # Форматирование дат
+            if updated_order.get('delivery_date'):
+                updated_order['delivery_date'] = updated_order['delivery_date'].isoformat()
+            if updated_order.get('created_at'):
+                updated_order['created_at'] = updated_order['created_at'].isoformat()
+            if updated_order.get('delivery_time') and hasattr(updated_order['delivery_time'], 'seconds'):
+                h, rem = divmod(updated_order['delivery_time'].seconds, 3600)
+                m, sec = divmod(rem, 60)
+                updated_order['delivery_time'] = f"{h:02}:{m:02}:{sec:02}"
+
+            # Decimal → float
+            updated_order['total_amount'] = float(updated_order['total_amount']) if updated_order.get('total_amount') is not None else 0.0
+            if updated_order.get('cash_amount') is not None:
+                updated_order['cash_amount'] = float(updated_order['cash_amount'])
+            if updated_order.get('card_amount') is not None:
+                updated_order['card_amount'] = float(updated_order['card_amount'])
+
+            # Позиции и скидки
+            cursor.execute("""
+                SELECT oi.order_id, oi.service_id, sv.name as service_name,
+                       oi.quantity, oi.price, oi.total_price
+                FROM order_items oi
+                JOIN services sv ON oi.service_id = sv.id
+                WHERE oi.order_id = %s
+            """, (order_id,))
+            items_result = cursor.fetchall()
+            for it in items_result:
+                if it.get('quantity') is not None: it['quantity'] = float(it['quantity'])
+                if it.get('price') is not None: it['price'] = float(it['price'])
+                if it.get('total_price') is not None: it['total_price'] = float(it['total_price'])
+            updated_order['services'] = items_result
+
+            cursor.execute("""
+                SELECT od.order_id, d.name as discount_name, d.discount_type, od.discount_amount
+                FROM order_discounts od
+                JOIN discounts d ON od.discount_id = d.id
+                WHERE od.order_id = %s
+            """, (order_id,))
+            discounts_result = cursor.fetchall()
+            for dc in discounts_result:
+                if dc.get('discount_amount') is not None: dc['discount_amount'] = float(dc['discount_amount'])
+            updated_order['discounts'] = discounts_result
+
+            return jsonify(updated_order), 200
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()

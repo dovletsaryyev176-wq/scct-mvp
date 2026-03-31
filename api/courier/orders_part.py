@@ -129,7 +129,10 @@ def update_courier_order_status(order_id):
     try:
         with conn.cursor() as cursor:
             # Проверяем, что заказ существует и принадлежит этому курьеру
-            cursor.execute("SELECT courier_id, status FROM orders WHERE id = %s", (order_id,))
+            cursor.execute(
+                "SELECT courier_id, status, payment_type, total_amount, client_id FROM orders WHERE id = %s",
+                (order_id,)
+            )
             order_row = cursor.fetchone()
 
             if not order_row:
@@ -142,14 +145,41 @@ def update_courier_order_status(order_id):
             if user_role == 'courier' and order_row['courier_id'] != user_id:
                 return jsonify({'error': 'Этот заказ не назначен вам'}), 403
 
+            old_status = order_row['status']
+
             # Обновляем статус
             cursor.execute("UPDATE orders SET status = %s WHERE id = %s", (new_status, order_id))
+
+            # Возврат кредита при отмене заказа
+            from all_types_description import PaymentTypes
+            if (new_status == OrderStatuses.CANCELLED
+                    and old_status != OrderStatuses.CANCELLED
+                    and order_row['payment_type'] == PaymentTypes.CREDIT):
+                old_amount = Decimal(str(order_row['total_amount'] or 0))
+                if old_amount > 0:
+                    cursor.execute(
+                        "SELECT id FROM client_credits WHERE client_id = %s",
+                        (order_row['client_id'],)
+                    )
+                    credit_row = cursor.fetchone()
+                    if credit_row:
+                        cursor.execute(
+                            "UPDATE client_credits SET used_credit = GREATEST(used_credit - %s, 0) WHERE id = %s",
+                            (old_amount, credit_row['id'])
+                        )
+                        cursor.execute(
+                            """INSERT INTO credit_payments (client_credit_id, order_id, payment_type, amount, description)
+                               VALUES (%s, %s, %s, %s, %s)""",
+                            (credit_row['id'], order_id, 'refund', old_amount,
+                             f'Возврат кредита по отменённому заказу #{order_id}')
+                        )
+
             conn.commit()
 
             return jsonify({
                 'message': 'Статус заказа успешно обновлен',
                 'order_id': order_id,
-                'old_status': order_row['status'],
+                'old_status': old_status,
                 'new_status': new_status
             }), 200
 
@@ -158,6 +188,7 @@ def update_courier_order_status(order_id):
         return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
+
 
 # -------------------------------------------------------------
 # 3a. Исполнение заказа курьером (Сдача заказа клиенту)
