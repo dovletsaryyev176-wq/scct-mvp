@@ -704,6 +704,7 @@ def client_order_history(client_id):
                     ca.entrance,
                     ca.floor,
                     city.name as city_name,
+                    dist.id as district_id,
                     dist.name as district_name,
                     o.payment_type,
                     o.total_amount,
@@ -1023,6 +1024,8 @@ def get_specific_courier_info(courier_id):
                     ca.entrance,
                     ca.floor,
                     city.name as city_name,
+                    dist.id as district_id,
+                    dist.name as district_name,
                     o.delivery_time_type,
                     o.delivery_time,
                     o.payment_type,
@@ -1038,6 +1041,7 @@ def get_specific_courier_info(courier_id):
                 LEFT JOIN client_addresses ca ON o.client_address_id = ca.id
                 LEFT JOIN streets s ON ca.street_id = s.id
                 LEFT JOIN cities city ON ca.city_id = city.id
+                LEFT JOIN districts dist ON ca.district_id = dist.id
                 LEFT JOIN users u ON o.user_id = u.id
                 LEFT JOIN courier_profiles cprof ON o.courier_id = cprof.user_id
                 LEFT JOIN users cour_u ON cprof.user_id = cour_u.id
