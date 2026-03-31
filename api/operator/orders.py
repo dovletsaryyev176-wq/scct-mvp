@@ -520,6 +520,7 @@ def monitoring_orders():
                     ca.entrance,
                     ca.floor,
                     city.name as city_name,
+                    dist.id as district_id,
                     dist.name as district_name,
                     o.delivery_time_type,
                     o.delivery_time,
