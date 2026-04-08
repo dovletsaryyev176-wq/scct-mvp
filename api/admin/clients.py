@@ -148,7 +148,7 @@ def get_all_clients():
 
 #Создание нового клиента
 @admin_bp.route('/clients', methods=['POST'])
-@roles_required('admin','operator')
+@roles_required('admin','operator','headoperator')
 def create_client():
     data = request.get_json()
     price_type_id = data.get('price_type_id')
@@ -353,7 +353,7 @@ def get_client_block_reasons(client_id):
 
 #Добавить телефонный номер клиенту
 @admin_bp.route('/clients/<int:client_id>/phones', methods=['POST'])
-@roles_required('admin','operator')
+@roles_required('admin','operator','headoperator')
 def add_phone(client_id):
     data = request.get_json()
     phone = data.get('phone')
@@ -397,7 +397,7 @@ def get_client_phones(client_id):
 
 #Удаление информации о номере телефона клиента
 @admin_bp.route('/clients/phones/<int:phone_id>', methods=['DELETE'])
-@roles_required('admin','operator')
+@roles_required('admin','operator','headoperator')
 def remove_phone(phone_id):
     conn = Db.get_connection()
     try:
@@ -414,7 +414,7 @@ def remove_phone(phone_id):
 
 #Добавить адрес клиенту
 @admin_bp.route('/clients/<int:client_id>/addresses', methods=['POST'])
-@roles_required('admin','operator')
+@roles_required('admin','operator','headoperator')
 def add_address(client_id):
     data = request.get_json()
     conn = Db.get_connection()
@@ -445,7 +445,7 @@ def add_address(client_id):
 
 #Удалит адрес клиента
 @admin_bp.route('/clients/addresses/<int:address_id>', methods=['DELETE'])
-@roles_required('admin','operator')
+@roles_required('admin','operator','headoperator')
 def remove_address(address_id):
     conn = Db.get_connection()
     try:
