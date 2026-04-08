@@ -456,6 +456,8 @@ def remove_address(address_id):
             conn.commit()
             
         return jsonify({"message": "Адрес удален"}), 200
+    except Exception as e:
+        return jsonify({"error": "По техническим причинам в данный момент невозможно удалить данный адрес"}), 400
     finally:
         conn.close()
 
@@ -506,7 +508,7 @@ def get_client_addresses(client_id):
 
 #Изменить информацию об клиенте
 @admin_bp.route('/clients/<int:client_id>', methods=['PATCH'])
-@roles_required('admin','operator')
+@roles_required('admin','operator','headoperator')
 def update_client(client_id):
     data = request.get_json()
     conn = Db.get_connection()
