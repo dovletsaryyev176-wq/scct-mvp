@@ -1535,3 +1535,121 @@ def update_order(order_id):
         return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
+
+# -------------------------------------------------------------
+# Получение информации о конкретном заказе
+# -------------------------------------------------------------
+@operator_bp.route('/orders/<int:order_id>', methods=['GET'])
+@roles_required('admin', 'operator', 'courier', 'warehouse', 'headoperator', 'sales')
+def get_order(order_id):
+    lang = request.args.get('lang', 'ru')
+    conn = Db.get_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT 
+                    o.id,
+                    o.client_id,
+                    o.created_at,
+                    o.delivery_date,
+                    c.full_name as client_name,
+                    cp.phone as client_phone,
+                    ca.address_line as client_address,
+                    s.name as street_name,
+                    ca.appartment,
+                    ca.entrance,
+                    ca.floor,
+                    city.name as city_name,
+                    dist.id as district_id,
+                    dist.name as district_name,
+                    o.delivery_time_type,
+                    o.delivery_time,
+                    o.payment_type,
+                    o.status,
+                    o.total_amount,
+                    o.cash_amount,
+                    o.card_amount,
+                    o.note,
+                    o.courier_id,
+                    u.full_name as operator_name,
+                    cour_u.full_name as courier_name
+                FROM orders o
+                LEFT JOIN clients c ON o.client_id = c.id
+                LEFT JOIN client_phones cp ON o.client_phone_id = cp.id
+                LEFT JOIN client_addresses ca ON o.client_address_id = ca.id
+                LEFT JOIN streets s ON ca.street_id = s.id
+                LEFT JOIN cities city ON ca.city_id = city.id
+                LEFT JOIN districts dist ON ca.district_id = dist.id
+                LEFT JOIN users u ON o.user_id = u.id
+                LEFT JOIN courier_profiles cprof ON o.courier_id = cprof.user_id
+                LEFT JOIN users cour_u ON cprof.user_id = cour_u.id
+                WHERE o.id = %s
+            """, (order_id,))
+            order = cursor.fetchone()
+            
+            if not order:
+                return jsonify({'error': 'Заказ не найден'}), 404
+                
+            # Форматирование дат
+            if order.get('delivery_date'):
+                order['delivery_date'] = order['delivery_date'].isoformat()
+            if order.get('created_at'):
+                order['created_at'] = order['created_at'].isoformat()
+            if order.get('delivery_time') and hasattr(order['delivery_time'], 'seconds'):
+                h, rem = divmod(order['delivery_time'].seconds, 3600)
+                m, sec = divmod(rem, 60)
+                order['delivery_time'] = f"{h:02}:{m:02}:{sec:02}"
+                
+            # Локализация типов
+            time_type = order.get('delivery_time_type')
+            time_type_lang = DeliveryTimes.LABELS.get(time_type, {}) if time_type else {}
+            order['delivery_time_type_label'] = time_type_lang.get(lang) or time_type_lang.get('ru')
+            
+            pay_type = order.get('payment_type')
+            payment_type_lang = PaymentTypes.LABELS.get(pay_type, {}) if pay_type else {}
+            order['payment_type_label'] = payment_type_lang.get(lang) or payment_type_lang.get('ru')
+            
+            status_val = order.get('status')
+            status_lang = OrderStatuses.LABELS.get(status_val, {}) if status_val else {}
+            order['status_label'] = status_lang.get(lang) or status_lang.get('ru')
+
+            # Decimal → float
+            order['total_amount'] = float(order['total_amount']) if order.get('total_amount') is not None else 0.0
+            if order.get('cash_amount') is not None:
+                order['cash_amount'] = float(order['cash_amount'])
+            if order.get('card_amount') is not None:
+                order['card_amount'] = float(order['card_amount'])
+
+            # Позиции
+            cursor.execute("""
+                SELECT oi.order_id, oi.service_id, sv.name as service_name,
+                       oi.quantity, oi.price, oi.total_price
+                FROM order_items oi
+                JOIN services sv ON oi.service_id = sv.id
+                WHERE oi.order_id = %s
+            """, (order_id,))
+            items = cursor.fetchall()
+            for it in items:
+                if it.get('quantity') is not None: it['quantity'] = float(it['quantity'])
+                if it.get('price') is not None: it['price'] = float(it['price'])
+                if it.get('total_price') is not None: it['total_price'] = float(it['total_price'])
+            order['services'] = items
+
+            # Скидки
+            cursor.execute("""
+                SELECT od.order_id, d.name as discount_name, d.discount_type, od.discount_amount
+                FROM order_discounts od
+                JOIN discounts d ON od.discount_id = d.id
+                WHERE od.order_id = %s
+            """, (order_id,))
+            discounts = cursor.fetchall()
+            for dc in discounts:
+                if dc.get('discount_amount') is not None: dc['discount_amount'] = float(dc['discount_amount'])
+            order['discounts'] = discounts
+
+            return jsonify(order), 200
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
